@@ -3,1551 +3,970 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ecom LaunchKit — Ecom Image Tools & Business Ideas</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Ecom LaunchKit — Tools for Online Sellers</title>
+<meta name="description" content="Image resizer, video compressor, background removal and more — built for ecommerce sellers.">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 <script src="https://js.stripe.com/v3/"></script>
 <style>
-  :root {
-    --bg: #0a0a0f;
-    --surface: #13131a;
-    --surface2: #1c1c27;
-    --border: #2a2a3a;
-    --accent: #f0c14b;
-    --accent2: #7c6af7;
-    --text: #f0f0f8;
-    --muted: #6b6b85;
-    --danger: #ff5757;
-    --success: #2dca72;
-    --radius: 12px;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
-
-  /* ─── NAV ─── */
-  nav {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 40px;
-    border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(10,10,15,0.92);
-    backdrop-filter: blur(12px);
-  }
-  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
-  .logo span { color: var(--accent); }
-  .nav-actions { display: flex; gap: 12px; align-items: center; }
-  .btn { padding: 9px 20px; border-radius: 8px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; transition: all .2s; }
-  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
-  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
-  .btn-primary { background: var(--accent); color: #000; font-weight: 600; }
-  .btn-primary:hover { background: #ffd166; transform: translateY(-1px); }
-  .btn-danger { background: var(--danger); color: #fff; }
-  .btn-small { padding: 6px 14px; font-size: 13px; }
-
-  /* ─── PAGE SECTIONS ─── */
-  .page { display: none; }
-  .page.active { display: block; }
-
-  /* ─── HERO ─── */
-  .hero {
-    padding: 80px 40px 60px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(124,106,247,0.15), transparent);
-    pointer-events: none;
-  }
-  .hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(36px, 6vw, 64px); font-weight: 800; line-height: 1.1; margin-bottom: 20px; }
-  .hero h1 em { color: var(--accent); font-style: normal; }
-  .hero p { color: var(--muted); font-size: 18px; max-width: 500px; margin: 0 auto 36px; line-height: 1.6; }
-  .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  .badge { display: inline-block; padding: 5px 12px; background: rgba(240,193,75,0.12); border: 1px solid rgba(240,193,75,0.3); border-radius: 20px; font-size: 12px; color: var(--accent); margin-bottom: 20px; font-weight: 500; }
-
-  /* ─── TOOLS GRID ─── */
-  .tools-section { padding: 40px; }
-  .tools-section h2 { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 24px; }
-  .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-  .tool-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px;
-    cursor: pointer;
-    transition: all .2s;
-    position: relative;
-    overflow: hidden;
-  }
-  .tool-card::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, var(--accent2), var(--accent));
-    opacity: 0; transition: opacity .2s;
-  }
-  .tool-card:hover { border-color: var(--accent2); transform: translateY(-2px); }
-  .tool-card:hover::before { opacity: 1; }
-  .tool-icon { font-size: 32px; margin-bottom: 14px; }
-  .tool-card h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-  .tool-card p { color: var(--muted); font-size: 14px; line-height: 1.5; }
-  .tool-tag { display: inline-block; margin-top: 12px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-  .tag-free { background: rgba(45,202,114,0.12); color: var(--success); }
-  .tag-pro { background: rgba(124,106,247,0.12); color: var(--accent2); }
-
-  /* ─── IMAGE RESIZER ─── */
-  .resizer-page { padding: 40px; max-width: 900px; margin: 0 auto; }
-  .resizer-page h2 { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; margin-bottom: 8px; }
-  .resizer-page .subtitle { color: var(--muted); margin-bottom: 32px; }
-
-  .usage-bar-wrap { margin-bottom: 32px; }
-  .usage-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
-  .usage-bar { height: 6px; background: var(--surface2); border-radius: 10px; overflow: hidden; }
-  .usage-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); border-radius: 10px; transition: width .4s; }
-
-  .drop-zone {
-    border: 2px dashed var(--border);
-    border-radius: var(--radius);
-    padding: 60px 40px;
-    text-align: center;
-    cursor: pointer;
-    transition: all .2s;
-    background: var(--surface);
-    margin-bottom: 24px;
-  }
-  .drop-zone:hover, .drop-zone.dragging { border-color: var(--accent); background: rgba(240,193,75,0.04); }
-  .drop-zone .drop-icon { font-size: 48px; margin-bottom: 16px; }
-  .drop-zone h3 { font-family: 'Syne', sans-serif; font-size: 18px; margin-bottom: 8px; }
-  .drop-zone p { color: var(--muted); font-size: 14px; }
-  #fileInput { display: none; }
-
-  .options-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-  .field { display: flex; flex-direction: column; gap: 6px; }
-  .field label { font-size: 13px; color: var(--muted); font-weight: 500; }
-  .field input, .field select {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    outline: none;
-    transition: border-color .2s;
-  }
-  .field input:focus, .field select:focus { border-color: var(--accent); }
-
-  .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
-  .preview-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    position: relative;
-  }
-  .preview-item img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
-  .preview-info { padding: 10px 12px; }
-  .preview-info .name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .preview-info .size-info { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .preview-item .remove-btn {
-    position: absolute; top: 8px; right: 8px;
-    background: rgba(0,0,0,0.6); border: none; color: #fff;
-    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
-    font-size: 14px; display: flex; align-items: center; justify-content: center;
-  }
-  .status-badge {
-    position: absolute; top: 8px; left: 8px;
-    padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;
-  }
-  .status-done { background: var(--success); color: #000; }
-  .status-pending { background: var(--accent); color: #000; }
-
-  .action-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-  .btn-large { padding: 14px 32px; font-size: 16px; border-radius: 10px; }
-
-  /* ─── LOGIN / AUTH ─── */
-  .auth-page {
-    min-height: 100vh;
-    display: flex; align-items: center; justify-content: center;
-    padding: 40px;
-  }
-  .auth-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 48px;
-    width: 100%; max-width: 420px;
-    text-align: center;
-  }
-  .auth-card h2 { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; margin-bottom: 8px; }
-  .auth-card p { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
-  .auth-fields { display: flex; flex-direction: column; gap: 16px; text-align: left; margin-bottom: 24px; }
-  .auth-error { color: var(--danger); font-size: 13px; margin-top: -8px; display: none; padding: 10px; background: rgba(255,87,87,0.1); border-radius: 8px; text-align: center; }
-
-  /* ─── ADMIN PANEL ─── */
-  .admin-page { padding: 40px; }
-  .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
-  .admin-header h2 { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
-  .admin-badge { background: rgba(240,193,75,0.15); border: 1px solid rgba(240,193,75,0.4); color: var(--accent); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-  .admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
-  .stat-card .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-  .stat-card .stat-value { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; }
-  .stat-card .stat-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
-
-  .section-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 24px; }
-  .section-card h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-
-  /* Keyword tool */
-  .kw-input-row { display: flex; gap: 12px; margin-bottom: 20px; }
-  .kw-input-row input { flex: 1; }
-  .kw-table { width: 100%; border-collapse: collapse; }
-  .kw-table th { text-align: left; padding: 8px 12px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
-  .kw-table td { padding: 10px 12px; font-size: 14px; border-bottom: 1px solid rgba(42,42,58,0.5); }
-  .kw-table tr:hover td { background: var(--surface2); }
-  .vol-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
-  .vol-high { background: rgba(45,202,114,0.15); color: var(--success); }
-  .vol-med { background: rgba(240,193,75,0.15); color: var(--accent); }
-  .vol-low { background: rgba(107,107,133,0.2); color: var(--muted); }
-
-  /* Pricing */
-  .pricing-section { padding: 60px 40px; }
-  .pricing-section h2 { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; text-align: center; margin-bottom: 8px; }
-  .pricing-section .subtitle { text-align: center; color: var(--muted); margin-bottom: 48px; }
-  .plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; max-width: 900px; margin: 0 auto; }
-  .plan-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; position: relative; }
-  .plan-card.featured { border-color: var(--accent); }
-  .plan-card.featured::before { content: 'Most Popular'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #000; padding: 3px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
-  .plan-name { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-  .plan-price { font-family: 'Syne', sans-serif; font-size: 40px; font-weight: 800; margin-bottom: 4px; }
-  .plan-price span { font-size: 16px; font-weight: 400; color: var(--muted); }
-  .plan-desc { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
-  .plan-features { list-style: none; margin-bottom: 28px; display: flex; flex-direction: column; gap: 10px; }
-  .plan-features li { font-size: 14px; display: flex; align-items: center; gap: 8px; }
-  .plan-features li::before { content: '✓'; color: var(--success); font-weight: 700; flex-shrink: 0; }
-
-  /* Toast */
-  .toast {
-    position: fixed; bottom: 24px; right: 24px;
-    background: var(--surface); border: 1px solid var(--border);
-    padding: 14px 20px; border-radius: 10px;
-    font-size: 14px; max-width: 320px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    transform: translateY(100px); opacity: 0;
-    transition: all .3s; z-index: 999;
-  }
-  .toast.show { transform: translateY(0); opacity: 1; }
-  .toast.success { border-color: var(--success); }
-  .toast.error { border-color: var(--danger); }
-
-  /* Adwords placeholder */
-  .ad-slot { background: var(--surface2); border: 1px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; color: var(--muted); font-size: 13px; margin: 20px 0; }
-
-  .preset-btn {
-    padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border);
-    background: var(--surface2); color: var(--text); cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
-    transition: all .15s; white-space: nowrap;
-  }
-  .preset-btn:hover, .preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(240,193,75,0.08); }
-
-  @media (max-width: 640px) {
-    nav { padding: 12px 20px; }
-    .hero { padding: 60px 20px 40px; }
-    .tools-section, .resizer-page, .admin-page, .pricing-section { padding: 24px 20px; }
-    .options-row { grid-template-columns: 1fr; }
-    .kw-input-row { flex-direction: column; }
-  }
+:root{--bg:#08080e;--surface:#111118;--surface2:#18181f;--border:#252530;--accent:#f0c14b;--accent2:#7c6af7;--text:#eeeef5;--muted:#64647a;--danger:#ff5252;--success:#2dca72;--radius:12px;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 48px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;background:rgba(8,8,14,.95);backdrop-filter:blur(14px);}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:21px;letter-spacing:-.5px;cursor:pointer;}
+.logo span{color:var(--accent);}
+.nav-links{display:flex;gap:2px;}
+.nav-link{padding:8px 14px;border-radius:8px;background:none;border:none;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;transition:color .2s;}
+.nav-link:hover{color:var(--text);}
+.nav-right{display:flex;gap:10px;align-items:center;}
+.btn{padding:9px 20px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;transition:all .18s;display:inline-flex;align-items:center;gap:6px;}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-primary{background:var(--accent);color:#000;font-weight:700;}
+.btn-primary:hover{background:#ffd166;transform:translateY(-1px);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-sm{padding:7px 14px;font-size:13px;}
+.btn-lg{padding:14px 32px;font-size:16px;border-radius:10px;}
+.btn-danger{background:var(--danger);color:#fff;}
+.page{display:none;}.page.active{display:block;}
+/* HERO */
+.hero{padding:100px 48px 80px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% -10%,rgba(124,106,247,.18),transparent);pointer-events:none;}
+.hero-badge{display:inline-block;padding:5px 14px;background:rgba(240,193,75,.1);border:1px solid rgba(240,193,75,.25);border-radius:20px;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.3px;margin-bottom:24px;}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(40px,6vw,68px);font-weight:800;line-height:1.08;margin-bottom:20px;}
+.hero h1 em{color:var(--accent);font-style:normal;}
+.hero p{color:var(--muted);font-size:18px;max-width:520px;margin:0 auto 40px;line-height:1.65;}
+.hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+/* TOOL SECTIONS */
+.tool-section{padding:80px 48px;border-top:1px solid var(--border);position:relative;}
+.tool-section:nth-child(odd){background:rgba(17,17,24,.5);}
+.section-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
+.section-inner.rev{direction:rtl;}.section-inner.rev>*{direction:ltr;}
+.section-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(28px,4vw,40px);font-weight:800;line-height:1.15;margin-bottom:16px;}
+.section-desc{color:var(--muted);font-size:16px;line-height:1.7;margin-bottom:24px;}
+.price-tag{display:flex;align-items:baseline;gap:6px;margin-bottom:24px;}
+.price-tag .amt{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;}
+.price-tag .per{color:var(--muted);font-size:15px;}
+.feat-list{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:28px;}
+.feat-list li{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--muted);}
+.feat-list li::before{content:'✓';color:var(--success);font-weight:700;flex-shrink:0;}
+/* TOOL DEMO BOX */
+.demo-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;position:relative;overflow:hidden;}
+.demo-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent));}
+.demo-icon{font-size:36px;margin-bottom:12px;}
+.demo-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:4px;}
+.demo-sub{color:var(--muted);font-size:13px;margin-bottom:18px;}
+.drop-zone{border:2px dashed var(--border);border-radius:10px;padding:32px 24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2);}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:rgba(240,193,75,.04);}
+.drop-zone p{color:var(--muted);font-size:13px;margin-top:6px;}
+.locked-box{border:2px dashed var(--border);border-radius:10px;padding:44px 24px;text-align:center;background:var(--surface2);}
+/* PRICING */
+.pricing-section{padding:80px 48px;border-top:1px solid var(--border);}
+.pricing-inner{max-width:1100px;margin:0 auto;}
+.pricing-title{font-family:'Syne',sans-serif;font-size:clamp(32px,4vw,44px);font-weight:800;text-align:center;margin-bottom:12px;}
+.pricing-sub{text-align:center;color:var(--muted);font-size:16px;margin-bottom:52px;}
+.plans-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.plan{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;position:relative;transition:border-color .2s;}
+.plan:hover{border-color:rgba(124,106,247,.4);}
+.plan.featured{border-color:var(--accent);}
+.plan-star{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;padding:3px 14px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+.plan-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px;}
+.plan-price{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;line-height:1;margin-bottom:4px;}
+.plan-price sup{font-size:18px;font-weight:600;}.plan-price sub{font-size:14px;font-weight:400;color:var(--muted);}
+.plan-desc{color:var(--muted);font-size:13px;margin-bottom:20px;min-height:36px;}
+.plan-features{list-style:none;margin-bottom:24px;display:flex;flex-direction:column;gap:9px;}
+.plan-features li{font-size:13px;display:flex;align-items:center;gap:8px;}
+.plan-features li::before{content:'✓';color:var(--success);font-weight:700;}
+.plan-features li.no::before{content:'✗';color:var(--muted);}.plan-features li.no{color:var(--muted);}
+/* FOOTER */
+footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.footer-copy{color:var(--muted);font-size:13px;}
+.footer-links{display:flex;gap:20px;align-items:center;}
+.footer-link{color:var(--muted);font-size:13px;text-decoration:none;transition:color .2s;}
+.footer-link:hover{color:var(--text);}
+.admin-trigger{background:none;border:none;color:transparent;cursor:default;font-size:1px;padding:10px;user-select:none;outline:none;}
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;width:100%;max-width:420px;position:relative;}
+.modal h2{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;margin-bottom:6px;}
+.modal p{color:var(--muted);font-size:14px;margin-bottom:28px;}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;}
+.modal-close:hover{color:var(--text);}
+.upgrade-plans{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.uplan{border:1px solid var(--border);border-radius:10px;padding:14px 18px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:space-between;}
+.uplan:hover,.uplan.sel{border-color:var(--accent);background:rgba(240,193,75,.05);}
+.uplan-name{font-weight:600;font-size:14px;}.uplan-desc{font-size:12px;color:var(--muted);margin-top:2px;}
+.uplan-price{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--accent);}
+/* FIELDS */
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:12px;color:var(--muted);font-weight:500;}
+.field input,.field select,.field textarea{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;width:100%;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);}
+.auth-err{display:none;color:var(--danger);font-size:13px;padding:9px;background:rgba(255,82,82,.1);border-radius:8px;text-align:center;margin-bottom:8px;}
+/* ADMIN */
+.admin-wrap{padding:40px 48px;max-width:1200px;margin:0 auto;}
+.admin-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.admin-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;}
+.admin-badge{background:rgba(240,193,75,.12);border:1px solid rgba(240,193,75,.3);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.stat-value{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;}
+.stat-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:26px;margin-bottom:18px;}
+.card h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.preset-btn{padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:all .15s;white-space:nowrap;}
+.preset-btn:hover,.preset-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(240,193,75,.08);}
+.presets-wrap{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;}
+.preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:14px 0;}
+.preview-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative;}
+.preview-item img{width:100%;aspect-ratio:1;object-fit:cover;display:block;}
+.preview-info{padding:7px 9px;}
+.pname{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.psize{font-size:10px;color:var(--muted);margin-top:1px;}
+.pbadge{position:absolute;top:5px;left:5px;padding:2px 7px;border-radius:7px;font-size:10px;font-weight:700;}
+.b-pending{background:rgba(240,193,75,.8);color:#000;}.b-done{background:rgba(45,202,114,.8);color:#000;}
+.premove{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.6);border:none;color:#fff;width:20px;height:20px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;}
+.action-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px;}
+.usage-wrap{margin-bottom:16px;}
+.usage-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px;}
+.usage-bar{height:4px;background:var(--surface2);border-radius:10px;overflow:hidden;}
+.usage-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:10px;transition:width .4s;}
+.kw-table{width:100%;border-collapse:collapse;}
+.kw-table th{text-align:left;padding:7px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);}
+.kw-table td{padding:8px 10px;font-size:13px;border-bottom:1px solid rgba(37,37,48,.5);}
+.kw-table tr:hover td{background:var(--surface2);}
+.vol-badge{display:inline-block;padding:2px 7px;border-radius:7px;font-size:11px;font-weight:600;}
+.vh{background:rgba(45,202,114,.12);color:var(--success);}.vm{background:rgba(240,193,75,.12);color:var(--accent);}.vl{background:rgba(107,107,133,.15);color:var(--muted);}
+.rename-prev{font-size:12px;color:var(--accent);margin-top:5px;min-height:14px;}
+.ad-slot{background:var(--surface2);border:1px dashed var(--border);border-radius:8px;padding:14px;text-align:center;color:var(--muted);font-size:12px;margin:20px 0;}
+.cap-note{display:inline-block;padding:4px 12px;background:rgba(124,106,247,.1);border:1px solid rgba(124,106,247,.25);border-radius:20px;font-size:12px;color:var(--accent2);margin-bottom:18px;}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border);padding:12px 18px;border-radius:10px;font-size:14px;max-width:300px;box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateY(70px);opacity:0;transition:all .26s;z-index:999;}
+.toast.show{transform:translateY(0);opacity:1;}.toast.success{border-color:var(--success);}.toast.error{border-color:var(--danger);}
+@media(max-width:900px){.section-inner{grid-template-columns:1fr;gap:36px;}.section-inner.rev{direction:ltr;}.plans-grid{grid-template-columns:1fr 1fr;}.stats-grid{grid-template-columns:1fr 1fr;}nav{padding:12px 20px;}.nav-links{display:none;}.tool-section,.hero,.pricing-section{padding:56px 20px;}footer{padding:24px 20px;}.admin-wrap{padding:20px;}}
+@media(max-width:580px){.plans-grid{grid-template-columns:1fr;}.card-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
 
-<!-- ─── NAV ─── -->
-<nav id="mainNav" style="display:none">
-  <div class="logo">Ecom <span>LaunchKit</span></div>
-  <div class="nav-actions" id="navActions">
-    <button class="btn btn-ghost btn-small" onclick="showPage('home')">Home</button>
-    <button class="btn btn-ghost btn-small" onclick="showPage('resizer')">Image Resizer</button>
-    <button class="btn btn-ghost btn-small" onclick="showPage('pricing')">Pricing</button>
-    <span id="navUser" style="font-size:13px;color:var(--muted);display:none"></span>
-    <button id="adminNavBtn" class="btn btn-small" style="background:rgba(240,193,75,0.15);color:var(--accent);border:1px solid rgba(240,193,75,0.3);display:none" onclick="showPage('admin')">⚡ Admin</button>
-    <button id="logoutBtn" class="btn btn-ghost btn-small" style="display:none" onclick="logout()">Logout</button>
-    <button id="loginNavBtn" class="btn btn-primary btn-small" onclick="showPage('login')">Login</button>
+<!-- NAV -->
+<nav id="siteNav">
+  <div class="logo" onclick="scrollToTop()">Ecom<span>LaunchKit</span></div>
+  <div class="nav-links">
+    <button class="nav-link" onclick="goTo('s-resizer')">Image Resizer</button>
+    <button class="nav-link" onclick="goTo('s-video')">Video Tools</button>
+    <button class="nav-link" onclick="goTo('s-bgremove')">Background Removal</button>
+    <button class="nav-link" onclick="goTo('s-pricing')">Pricing</button>
+  </div>
+  <div class="nav-right">
+    <button class="btn btn-primary btn-sm" onclick="openUpgradeModal(null)">Get Access</button>
   </div>
 </nav>
 
-<!-- ─── LOGIN PAGE ─── -->
-<div class="page active" id="page-login">
-  <div class="auth-page">
-    <div class="auth-card">
-      <div style="display:flex;justify-content:center;margin-bottom:24px">
-        <div style="position:relative;width:64px;height:64px">
-          <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="64" height="64" rx="16" fill="rgba(240,193,75,0.07)" stroke="rgba(240,193,75,0.2)" stroke-width="1"/>
-            <rect x="14" y="18" width="36" height="28" rx="3.5" stroke="rgba(240,193,75,0.35)" stroke-width="1.5"/>
-            <path d="M14 38L24.5 26L31 33.5L36 28L50 38" stroke="#f0c14b" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
-            <circle cx="23" cy="25" r="3" stroke="#f0c14b" stroke-width="1.5"/>
-            <path d="M40 11L40 17M37 14H43" stroke="#f0c14b" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-        </div>
-      </div>
-      <h2>Welcome back</h2>
-      <p>Sign in to your Ecom LaunchKit account</p>
-      <div class="auth-fields">
-        <div class="field">
-          <label>Email</label>
-          <input type="email" id="loginEmail" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doLogin()">
-        </div>
-        <div class="field">
-          <label>Password</label>
-          <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
-        </div>
-        <div class="auth-error" id="loginError">Invalid email or password</div>
-      </div>
-      <button class="btn btn-primary" style="width:100%;padding:14px;font-size:16px;border-radius:10px" onclick="doLogin()">Sign In</button>
-      <p style="margin-top:20px;font-size:13px;color:var(--muted)">Don't have an account? <a href="#" style="color:var(--accent)" onclick="showPage('home')">Use free tier</a></p>
-      <div style="margin-top:16px;padding:12px;background:rgba(124,106,247,0.08);border-radius:8px;font-size:12px;color:var(--muted)">
-        🔐 Admin: hello@flyhighdigital.com.au
-      </div>
-    </div>
-  </div>
-</div>
+<!-- ═══════════ HOME PAGE ═══════════ -->
+<div class="page active" id="page-home">
 
-<!-- ─── HOME PAGE ─── -->
-<div class="page" id="page-home">
+  <!-- HERO -->
   <section class="hero">
-    <div class="badge">🚀 Now in Beta — Free to start</div>
-    <h1>Your Ecom<br><em>LaunchKit</em></h1>
-    <p>Resize, convert & optimise product images. Plus AI-powered keyword ideas for your store.</p>
+    <div class="hero-badge">⚡ Built for Ecommerce Sellers</div>
+    <h1>The toolkit that moves<br>your <em>products faster</em></h1>
+    <p>Resize images, compress videos, remove backgrounds — all in one place. Built for Shopify, Amazon, eBay & more.</p>
     <div class="hero-cta">
-      <button class="btn btn-primary" style="padding:14px 32px;font-size:16px;border-radius:10px" onclick="showPage('resizer')">Start Resizing Free</button>
-      <button class="btn btn-ghost" style="padding:14px 32px;font-size:16px;border-radius:10px" onclick="showPage('pricing')">View Plans</button>
+      <button class="btn btn-primary btn-lg" onclick="goTo('s-resizer')">Explore Tools</button>
+      <button class="btn btn-ghost btn-lg" onclick="goTo('s-pricing')">View Pricing</button>
     </div>
   </section>
 
-  <!-- Google Ad Slot placeholder -->
-  <div style="padding:0 40px">
-    <div class="ad-slot">📢 Google AdSense — 728×90 Leaderboard Ad Unit (activate after approval)</div>
-  </div>
-
-  <section class="tools-section">
-    <h2>Tools</h2>
-    <div class="tools-grid">
-      <div class="tool-card" onclick="showPage('resizer')">
-        <div class="tool-icon">🖼️</div>
-        <h3>Image Resizer & Converter</h3>
-        <p>Resize to exact pixels, compress for web, and convert PNG/WEBP/GIF to JPEG in one click.</p>
-        <span class="tool-tag tag-free">Free — 15/day</span>
-      </div>
-      <div class="tool-card" onclick="showPage('pricing')">
-        <div class="tool-icon">📐</div>
-        <h3>Platform Presets</h3>
-        <p>One-click sizing for Shopify, Amazon, eBay, Etsy, WooCommerce, Pinterest & more. Bulk ZIP download.</p>
-        <span class="tool-tag tag-pro">Pro only</span>
-      </div>
-      <div class="tool-card" onclick="showPage('pricing')">
-        <div class="tool-icon">✂️</div>
-        <h3>Background Removal</h3>
-        <p>Remove image backgrounds automatically. Perfect for clean product shots on white.</p>
-        <span class="tool-tag tag-pro">Pro only</span>
-      </div>
-      <div class="tool-card" onclick="showPage('pricing')">
-        <div class="tool-icon">✏️</div>
-        <h3>Bulk Rename</h3>
-        <p>Rename 50+ product images by pattern before uploading — great for Shopify & Amazon SEO.</p>
-        <span class="tool-tag tag-pro">Pro only</span>
-      </div>
-      <div class="tool-card" onclick="showPage('pricing')">
-        <div class="tool-icon">🔍</div>
-        <h3>AI Keyword Research</h3>
-        <p>Discover low-competition, high-value keywords for your ecom store. Saved to your database.</p>
-        <span class="tool-tag tag-pro">Pro only</span>
-      </div>
-      <div class="tool-card" onclick="showPage('pricing')">
-        <div class="tool-icon">✍️</div>
-        <h3>SEO Copy Generator</h3>
-        <p>Paste raw text, get polished Australian SEO copy for product pages, listings & blogs.</p>
-        <span class="tool-tag tag-pro">Pro only</span>
-      </div>
-    </div>
-  </section>
-
-  <div style="padding:0 40px 40px">
-    <div class="ad-slot">📢 Google AdSense — 300×250 Rectangle Ad Unit (activate after approval)</div>
-  </div>
-</div>
-
-<!-- ─── IMAGE RESIZER PAGE ─── -->
-<div class="page" id="page-resizer">
-  <div class="resizer-page">
-    <h2>🖼️ Image Resizer & Converter</h2>
-    <p class="subtitle">Upload images to resize, compress, and convert to JPEG</p>
-
-    <div class="usage-bar-wrap" id="usageWrap">
-      <div class="usage-label">
-        <span>Daily Usage</span>
-        <span id="usageText">0 / 15 used today</span>
-      </div>
-      <div class="usage-bar"><div class="usage-fill" id="usageFill" style="width:0%"></div></div>
-    </div>
-
-    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-      <div class="drop-icon">📂</div>
-      <h3>Drop images here or click to browse</h3>
-      <p>Supports JPG, PNG, WEBP, GIF — all will be processed as JPEG on output</p>
-      <input type="file" id="fileInput" multiple accept="image/*" onchange="handleFiles(this.files)">
-    </div>
-
-    <div class="options-row">
-      <div class="field">
-        <label>Width (px)</label>
-        <input type="number" id="optWidth" placeholder="e.g. 800" value="800">
-      </div>
-      <div class="field">
-        <label>Height (px)</label>
-        <input type="number" id="optHeight" placeholder="e.g. 800" value="800">
-      </div>
-      <div class="field">
-        <label>Quality (%)</label>
-        <input type="number" id="optQuality" placeholder="1–100" value="85" min="1" max="100">
-      </div>
-    </div>
-
-    <div class="options-row" style="grid-template-columns:1fr 1fr;max-width:440px">
-      <div class="field">
-        <label>Output Format</label>
-        <select id="optFormat">
-          <option value="image/jpeg">JPEG (recommended)</option>
-          <option value="image/webp">WEBP</option>
-          <option value="image/png">PNG</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Resize Mode</label>
-        <select id="optMode">
-          <option value="fit">Fit (keep ratio)</option>
-          <option value="stretch">Stretch (exact)</option>
-          <option value="crop">Crop (fill)</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="preview-grid" id="previewGrid"></div>
-
-    <div class="action-bar" id="actionBar" style="display:none">
-      <button class="btn btn-primary btn-large" onclick="processAll()">⚡ Process & Download All</button>
-      <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
-      <span id="processStatus" style="font-size:14px;color:var(--muted)"></span>
-    </div>
-
-    <div style="margin-top:40px">
-      <div class="ad-slot">📢 Google AdSense — 728×90 Ad Unit (activate after approval)</div>
-    </div>
-  </div>
-</div>
-
-<!-- ─── PRICING PAGE ─── -->
-<div class="page" id="page-pricing">
-  <section class="pricing-section">
-    <h2>Simple Pricing</h2>
-    <p class="subtitle">Start free. Upgrade when you need more power.</p>
-    <div class="plans-grid">
-      <div class="plan-card">
-        <div class="plan-name">Free</div>
-        <div class="plan-price">$0 <span>/ month</span></div>
-        <div class="plan-desc">Perfect for trying it out</div>
-        <ul class="plan-features">
-          <li>15 image edits per day</li>
-          <li>JPEG conversion</li>
-          <li>Basic resize & compress</li>
-          <li>Download individually</li>
-        </ul>
-        <button class="btn btn-ghost" style="width:100%;padding:12px" onclick="showPage('resizer')">Start Free</button>
-      </div>
-      <div class="plan-card featured">
-        <div class="plan-name">Pro</div>
-        <div class="plan-price">$19 <span>/ month</span></div>
-        <div class="plan-desc">For active ecom sellers</div>
-        <ul class="plan-features">
-          <li>Unlimited image edits</li>
-          <li>Bulk processing (50+ at once)</li>
-          <li>Platform presets (Shopify, Amazon)</li>
-          <li>Keyword research tool</li>
-          <li>Business ideas generator</li>
-          <li>Priority support</li>
-        </ul>
-        <button class="btn btn-primary" style="width:100%;padding:12px" onclick="handleStripeCheckout('pro')">Upgrade to Pro</button>
-      </div>
-      <div class="plan-card">
-        <div class="plan-name">Agency</div>
-        <div class="plan-price">$49 <span>/ month</span></div>
-        <div class="plan-desc">For teams & agencies</div>
-        <ul class="plan-features">
-          <li>Everything in Pro</li>
-          <li>5 team seats</li>
-          <li>API access</li>
-          <li>White-label option</li>
-          <li>Advanced keyword database</li>
-          <li>Dedicated support</li>
-        </ul>
-        <button class="btn btn-ghost" style="width:100%;padding:12px" onclick="handleStripeCheckout('agency')">Get Agency</button>
-      </div>
-    </div>
-  </section>
-</div>
-
-<!-- ─── ADMIN PAGE ─── -->
-<div class="page" id="page-admin">
-  <div class="admin-page">
-    <div class="admin-header">
+  <!-- TOOL 1: IMAGE RESIZER -->
+  <section class="tool-section" id="s-resizer">
+    <div class="section-inner">
       <div>
-        <h2>⚡ Admin Dashboard</h2>
-        <p style="color:var(--muted);font-size:14px;margin-top:4px">Full access — Fly High Digital</p>
+        <div class="section-label">Tool 01 — Image Resizer</div>
+        <h2 class="section-title">Perfect product images,<br>every platform</h2>
+        <p class="section-desc">Upload any image — PNG, WEBP, GIF — and resize, compress, convert to JPEG instantly. Platform presets for Shopify, Amazon, eBay, Etsy and more. Bulk process and download as a single ZIP.</p>
+        <div class="price-tag"><span class="amt">$5</span><span class="per">USD / month — unlimited</span></div>
+        <ul class="feat-list">
+          <li>10 platform presets (Shopify, Amazon, eBay, Etsy...)</li>
+          <li>Bulk upload & single ZIP download</li>
+          <li>Convert any format to JPEG, WEBP or PNG</li>
+          <li>Bulk rename with custom patterns</li>
+          <li>Fit, stretch or crop modes</li>
+        </ul>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-lg" onclick="openUpgradeModal('resizer')">Get Access — $5/mo</button>
+          <button class="btn btn-ghost btn-lg">Try Free (15/day ↓)</button>
+        </div>
       </div>
+      <!-- Free demo -->
+      <div class="demo-box">
+        <div class="demo-icon">🖼️</div>
+        <div class="demo-title">Image Resizer & Converter</div>
+        <div class="demo-sub">Free: 15 images/day. Subscribe for unlimited.</div>
+        <div class="usage-wrap">
+          <div class="usage-label"><span>Free daily usage</span><span id="usageText">0 / 15</span></div>
+          <div class="usage-bar"><div class="usage-fill" id="usageFill" style="width:0%"></div></div>
+        </div>
+        <div class="drop-zone" id="pubDropZone" onclick="document.getElementById('pubFileIn').click()" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onPubDrop(event)">
+          <div style="font-size:26px;margin-bottom:6px">📂</div>
+          <strong style="font-size:14px">Drop images here</strong>
+          <p>JPG · PNG · WEBP · GIF</p>
+          <input type="file" id="pubFileIn" multiple accept="image/*" style="display:none" onchange="handlePubFiles(this.files)">
+        </div>
+        <div class="preview-grid" id="pubGrid"></div>
+        <div class="action-bar" id="pubActionBar" style="display:none">
+          <select id="pubW" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px">
+            <option value="800">800px</option><option value="1080">1080px</option><option value="1200">1200px</option><option value="2000">2000px</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="processPub()">Convert & ZIP</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearPub()">Clear</button>
+        </div>
+        <div id="pubStatus" style="font-size:12px;color:var(--muted);margin-top:8px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOOL 2: VIDEO COMPRESSOR -->
+  <section class="tool-section" id="s-video">
+    <div class="section-inner rev">
+      <div>
+        <div class="section-label">Tool 02 — Video Compressor</div>
+        <h2 class="section-title">Smaller videos,<br>faster stores</h2>
+        <p class="section-desc">Shopify limits product videos to 20MB. Instagram, TikTok ads and Google all have strict size limits. Compress and convert your product videos right in the browser — no external servers, completely private.</p>
+        <div class="price-tag"><span class="amt">$5</span><span class="per">USD / month</span></div>
+        <div class="cap-note">📦 500MB max file · 50 compressions/month</div>
+        <ul class="feat-list">
+          <li>Compress MP4, MOV, WEBM in browser</li>
+          <li>Platform presets (Shopify, Instagram, TikTok Ads)</li>
+          <li>No file sent to external servers — 100% private</li>
+          <li>Adjust quality & resolution</li>
+        </ul>
+        <button class="btn btn-primary btn-lg" onclick="openUpgradeModal('video')">Get Access — $5/mo</button>
+      </div>
+      <div class="demo-box">
+        <div class="demo-icon">🎬</div>
+        <div class="demo-title">Video Compressor & Converter</div>
+        <div class="demo-sub">Subscribers only</div>
+        <div class="locked-box">
+          <div style="font-size:32px;margin-bottom:10px">🔒</div>
+          <div style="font-weight:600;margin-bottom:6px">Subscribers only</div>
+          <p style="color:var(--muted);font-size:13px;margin-bottom:18px">$5/month — compress product videos for any platform</p>
+          <button class="btn btn-primary btn-sm" onclick="openUpgradeModal('video')">Unlock Video Tools</button>
+        </div>
+        <div style="margin-top:14px;display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:9px 12px;background:var(--surface2);border-radius:8px"><span style="color:var(--muted)">Shopify limit</span><span style="color:var(--accent);font-weight:600">20MB max</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:9px 12px;background:var(--surface2);border-radius:8px"><span style="color:var(--muted)">Instagram Reels</span><span style="color:var(--accent);font-weight:600">650MB / 60s</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:9px 12px;background:var(--surface2);border-radius:8px"><span style="color:var(--muted)">TikTok Ads</span><span style="color:var(--accent);font-weight:600">500MB max</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOOL 3: BACKGROUND REMOVAL -->
+  <section class="tool-section" id="s-bgremove">
+    <div class="section-inner">
+      <div>
+        <div class="section-label">Tool 03 — Background Removal</div>
+        <h2 class="section-title">Clean product shots,<br>zero effort</h2>
+        <p class="section-desc">Amazon requires white backgrounds. Shopify product pages look sharper without clutter. Remove backgrounds automatically — works best on product photography, logos, and flat-lay shots.</p>
+        <div class="price-tag"><span class="amt">$4</span><span class="per">USD / month</span></div>
+        <ul class="feat-list">
+          <li>Automatic AI background removal</li>
+          <li>Replace with white, custom colour or transparent PNG</li>
+          <li>Bulk process multiple products at once</li>
+          <li>Perfect for Amazon, Shopify & Google Shopping</li>
+        </ul>
+        <button class="btn btn-primary btn-lg" onclick="openUpgradeModal('bgremove')">Get Access — $4/mo</button>
+      </div>
+      <div class="demo-box">
+        <div class="demo-icon">✂️</div>
+        <div class="demo-title">Background Removal</div>
+        <div class="demo-sub">Subscribers only</div>
+        <div class="locked-box">
+          <div style="font-size:32px;margin-bottom:10px">🔒</div>
+          <div style="font-weight:600;margin-bottom:6px">Subscribers only</div>
+          <p style="color:var(--muted);font-size:13px;margin-bottom:18px">$4/month — bulk background removal for product images</p>
+          <button class="btn btn-primary btn-sm" onclick="openUpgradeModal('bgremove')">Unlock Background Removal</button>
+        </div>
+        <div style="margin-top:14px;padding:14px;background:var(--surface2);border-radius:8px;font-size:13px;color:var(--muted);line-height:1.6">
+          <strong style="color:var(--text)">Why it matters:</strong> Amazon penalises listings without white backgrounds. Removing backgrounds can increase click-through rate by up to 30% on marketplace listings.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing-section" id="s-pricing">
+    <div class="pricing-inner">
+      <h2 class="pricing-title">Simple, honest pricing</h2>
+      <p class="pricing-sub">Pay for what you use. Bundle and save.</p>
+      <div class="plans-grid">
+        <div class="plan">
+          <div class="plan-name">Image Resizer</div>
+          <div class="plan-price"><sup>$</sup>5<sub>/mo</sub></div>
+          <div class="plan-desc">Unlimited image resizing & conversion</div>
+          <ul class="plan-features">
+            <li>Unlimited images</li><li>10 platform presets</li><li>Bulk ZIP download</li><li>Bulk rename</li><li>JPEG / WEBP / PNG output</li>
+            <li class="no">Video compression</li><li class="no">Background removal</li>
+          </ul>
+          <button class="btn btn-ghost" style="width:100%;padding:11px" onclick="openUpgradeModal('resizer')">Get Started</button>
+        </div>
+        <div class="plan">
+          <div class="plan-name">Video Compressor</div>
+          <div class="plan-price"><sup>$</sup>5<sub>/mo</sub></div>
+          <div class="plan-desc">50 compressions/month · 500MB max</div>
+          <ul class="plan-features">
+            <li>50 compressions/month</li><li>500MB max file size</li><li>Platform presets</li><li>MP4 · MOV · WEBM</li><li>100% browser-based</li>
+            <li class="no">Image resizer</li><li class="no">Background removal</li>
+          </ul>
+          <button class="btn btn-ghost" style="width:100%;padding:11px" onclick="openUpgradeModal('video')">Get Started</button>
+        </div>
+        <div class="plan featured">
+          <div class="plan-star">Best Value</div>
+          <div class="plan-name">Image + Video</div>
+          <div class="plan-price"><sup>$</sup>9<sub>/mo</sub></div>
+          <div class="plan-desc">Save $1/month vs buying separate</div>
+          <ul class="plan-features">
+            <li>Everything in Image Resizer</li><li>Everything in Video Compressor</li><li>Priority support</li>
+            <li class="no">Background removal</li>
+          </ul>
+          <button class="btn btn-primary" style="width:100%;padding:11px" onclick="openUpgradeModal('bundle2')">Get Bundle</button>
+        </div>
+        <div class="plan">
+          <div class="plan-name">All Features</div>
+          <div class="plan-price"><sup>$</sup>12<sub style="font-size:12px">.99/mo</sub></div>
+          <div class="plan-desc">Every tool. One price.</div>
+          <ul class="plan-features">
+            <li>Unlimited image resizing</li><li>Video compression</li><li>Background removal</li><li>All platform presets</li><li>Bulk rename</li><li>Priority support</li>
+          </ul>
+          <button class="btn btn-ghost" style="width:100%;padding:11px" onclick="openUpgradeModal('all')">Get All Features</button>
+        </div>
+      </div>
+      <p style="text-align:center;margin-top:20px;font-size:13px;color:var(--muted)">All plans billed monthly in USD. Cancel anytime.</p>
+    </div>
+  </section>
+
+  <div style="padding:0 48px 40px"><div class="ad-slot">📢 Google AdSense — 728×90 Leaderboard (activate after approval)</div></div>
+
+  <!-- FOOTER — admin trigger hidden here -->
+  <footer>
+    <div class="footer-copy">© 2025 Ecom LaunchKit · <a href="https://flyhighdigital.com.au" target="_blank" style="color:var(--muted);text-decoration:none">Fly High Digital</a></div>
+    <div class="footer-links">
+      <a class="footer-link" href="#">Privacy</a>
+      <a class="footer-link" href="#">Terms</a>
+      <a class="footer-link" href="#">Support</a>
+      <!-- 5 clicks on this invisible dot opens admin login — not visible to users -->
+      <button class="admin-trigger" id="adminTrigger" onclick="handleAdminTap()" tabindex="-1" aria-hidden="true">·</button>
+    </div>
+  </footer>
+
+</div><!-- /page-home -->
+
+<!-- ═══════════ ADMIN PAGE ═══════════ -->
+<div class="page" id="page-admin">
+  <nav style="display:flex;align-items:center;justify-content:space-between;padding:16px 48px;border-bottom:1px solid var(--border);background:rgba(8,8,14,.95);backdrop-filter:blur(14px);position:sticky;top:0;z-index:200;">
+    <div class="logo">Ecom<span>LaunchKit</span> <span style="font-size:13px;font-weight:400;color:var(--accent);margin-left:8px">Admin</span></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost btn-sm" onclick="showPage('home')">← Back to site</button>
+      <button class="btn btn-danger btn-sm" onclick="logout()">Log out</button>
+    </div>
+  </nav>
+  <div class="admin-wrap">
+    <div class="admin-hdr">
+      <div><div class="admin-title">⚡ Admin Dashboard</div><div style="color:var(--muted);font-size:14px;margin-top:3px">Fly High Digital — full access</div></div>
       <div class="admin-badge">ADMIN</div>
     </div>
+    <div class="stats-grid">
+      <div class="stat"><div class="stat-label">Images Processed</div><div class="stat-value" id="statImages">0</div><div class="stat-sub">All time</div></div>
+      <div class="stat"><div class="stat-label">Keywords Saved</div><div class="stat-value" id="statKeywords">0</div><div class="stat-sub">In database</div></div>
+      <div class="stat"><div class="stat-label">Subscribers</div><div class="stat-value">0</div><div class="stat-sub">Via Stripe</div></div>
+      <div class="stat"><div class="stat-label">MRR</div><div class="stat-value">$0</div><div class="stat-sub">USD</div></div>
+    </div>
 
-    <!-- Stats -->
-    <div class="admin-grid">
-      <div class="stat-card">
-        <div class="stat-label">Total Users</div>
-        <div class="stat-value" id="statUsers">1</div>
-        <div class="stat-sub">↑ 0 this week</div>
+    <!-- ADMIN IMAGE RESIZER -->
+    <div class="card">
+      <h3>🖼️ Image Resizer <span style="font-size:11px;font-weight:400;color:var(--success);background:rgba(45,202,114,.1);padding:2px 8px;border-radius:8px">Unlimited</span></h3>
+      <div style="font-size:12px;color:var(--muted);font-weight:500;margin-bottom:8px">Platform Presets</div>
+      <div class="presets-wrap" id="presetBtns">
+        <button class="preset-btn" onclick="applyPreset('shopify-main',event)">Shopify Main</button>
+        <button class="preset-btn" onclick="applyPreset('shopify-thumb',event)">Shopify Thumb</button>
+        <button class="preset-btn" onclick="applyPreset('amazon',event)">Amazon</button>
+        <button class="preset-btn" onclick="applyPreset('ebay',event)">eBay</button>
+        <button class="preset-btn" onclick="applyPreset('etsy',event)">Etsy</button>
+        <button class="preset-btn" onclick="applyPreset('woocommerce',event)">WooCommerce</button>
+        <button class="preset-btn" onclick="applyPreset('instagram',event)">Instagram</button>
+        <button class="preset-btn" onclick="applyPreset('facebook',event)">Facebook Shop</button>
+        <button class="preset-btn" onclick="applyPreset('google-shopping',event)">Google Shopping</button>
+        <button class="preset-btn" onclick="applyPreset('pinterest',event)">Pinterest</button>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Images Processed</div>
-        <div class="stat-value" id="statImages">0</div>
-        <div class="stat-sub">Today: 0</div>
+      <div id="presetInfo" style="font-size:12px;color:var(--accent);display:none;padding:7px 12px;background:rgba(240,193,75,.06);border-radius:8px;border:1px solid rgba(240,193,75,.15);margin-bottom:12px"></div>
+      <div class="drop-zone" id="adminDropZone" onclick="document.getElementById('adminFileIn').click()" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onAdminDrop(event)" style="padding:28px">
+        <div style="font-size:24px;margin-bottom:6px">📂</div><strong>Drop images or click to upload</strong><p>No limits</p>
+        <input type="file" id="adminFileIn" multiple accept="image/*" style="display:none" onchange="handleAdminFiles(this.files)">
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Keywords Saved</div>
-        <div class="stat-value" id="statKeywords">0</div>
-        <div class="stat-sub">In Supabase</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr) repeat(3,1fr);gap:10px;margin-top:14px">
+        <div class="field"><label>Width px</label><input type="number" id="aW" value="800"></div>
+        <div class="field"><label>Height px</label><input type="number" id="aH" value="800"></div>
+        <div class="field"><label>Quality %</label><input type="number" id="aQ" value="85" min="1" max="100"></div>
+        <div class="field"><label>Format</label><select id="aF" onchange="updateRenPrev()"><option value="image/jpeg">JPEG</option><option value="image/webp">WEBP</option><option value="image/png">PNG</option></select></div>
+        <div class="field"><label>Mode</label><select id="aM"><option value="fit">Fit (ratio)</option><option value="stretch">Stretch (exact)</option><option value="crop">Crop (fill)</option></select></div>
+        <div class="field"><label>Bg Removal</label><select id="aBg"><option value="no">No</option><option value="yes">Yes (remove.bg)</option></select></div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">MRR</div>
-        <div class="stat-value">$0</div>
-        <div class="stat-sub">0 paid subscribers</div>
+      <div style="background:var(--surface2);border-radius:9px;padding:14px;margin-top:12px;border:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
+          <span style="font-size:13px;font-weight:600">✏️ Bulk Rename <span style="font-weight:400;color:var(--muted)">(optional)</span></span>
+          <span style="font-size:11px;color:var(--muted)">{n} = number · {date} = today</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 70px 100px;gap:9px">
+          <div class="field"><input type="text" id="aRenPat" placeholder="e.g. omd-dog-bed-{n}" oninput="updateRenPrev()"></div>
+          <div class="field"><label style="font-size:11px">Start #</label><input type="number" id="aRenStart" value="1" oninput="updateRenPrev()"></div>
+          <div class="field"><label style="font-size:11px">Padding</label><select id="aRenPad" onchange="updateRenPrev()"><option value="1">1 (1,2)</option><option value="2" selected>2 (01,02)</option><option value="3">3 (001)</option></select></div>
+        </div>
+        <div class="rename-prev" id="renPrev"></div>
+      </div>
+      <div class="preview-grid" id="adminGrid"></div>
+      <div class="action-bar" id="adminActionBar" style="display:none">
+        <button class="btn btn-primary btn-lg" id="adminProcBtn" onclick="adminProcessAll()">⚡ Process & Download ZIP</button>
+        <button class="btn btn-ghost" onclick="adminClear()">Clear all</button>
+        <span id="adminStatus" style="font-size:13px;color:var(--muted)"></span>
       </div>
     </div>
 
-    <!-- Image Resizer (unlimited for admin) -->
-    <div class="section-card">
-      <h3>🖼️ Image Resizer & Tools <span style="font-size:12px;font-weight:400;color:var(--success);background:rgba(45,202,114,0.1);padding:2px 8px;border-radius:10px;margin-left:8px">Unlimited Admin Access</span></h3>
-
-      <!-- Platform Presets -->
-      <div style="margin-bottom:20px">
-        <label style="font-size:13px;color:var(--muted);font-weight:500;display:block;margin-bottom:10px">⚡ Platform Presets</label>
-        <div style="display:flex;flex-wrap:wrap;gap:8px" id="presetBtns">
-          <button class="preset-btn" onclick="applyPreset('shopify-main')">Shopify Main</button>
-          <button class="preset-btn" onclick="applyPreset('shopify-thumb')">Shopify Thumb</button>
-          <button class="preset-btn" onclick="applyPreset('amazon')">Amazon</button>
-          <button class="preset-btn" onclick="applyPreset('ebay')">eBay</button>
-          <button class="preset-btn" onclick="applyPreset('etsy')">Etsy</button>
-          <button class="preset-btn" onclick="applyPreset('woocommerce')">WooCommerce</button>
-          <button class="preset-btn" onclick="applyPreset('instagram')">Instagram Square</button>
-          <button class="preset-btn" onclick="applyPreset('facebook')">Facebook Shop</button>
-          <button class="preset-btn" onclick="applyPreset('google-shopping')">Google Shopping</button>
-          <button class="preset-btn" onclick="applyPreset('pinterest')">Pinterest</button>
-        </div>
-        <div id="presetInfo" style="margin-top:10px;font-size:12px;color:var(--accent);display:none;padding:8px 12px;background:rgba(240,193,75,0.06);border-radius:8px;border:1px solid rgba(240,193,75,0.15)"></div>
-      </div>
-
-      <div class="drop-zone" id="adminDropZone" onclick="document.getElementById('adminFileInput').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleAdminDrop(event)" style="padding:40px">
-        <div class="drop-icon">📂</div>
-        <h3>Drop images or click to upload</h3>
-        <p>No limits — process as many as you need</p>
-        <input type="file" id="adminFileInput" multiple accept="image/*" onchange="handleAdminFiles(this.files)">
-      </div>
-
-      <!-- Resize Options -->
-      <div class="options-row" style="margin-top:20px">
-        <div class="field">
-          <label>Width (px)</label>
-          <input type="number" id="adminWidth" value="800">
-        </div>
-        <div class="field">
-          <label>Height (px)</label>
-          <input type="number" id="adminHeight" value="800">
-        </div>
-        <div class="field">
-          <label>Quality (%)</label>
-          <input type="number" id="adminQuality" value="85">
-        </div>
-      </div>
-      <div class="options-row" style="grid-template-columns:1fr 1fr 1fr;max-width:660px">
-        <div class="field">
-          <label>Output Format</label>
-          <select id="adminFormat">
-            <option value="image/jpeg">JPEG</option>
-            <option value="image/webp">WEBP</option>
-            <option value="image/png">PNG</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Resize Mode</label>
-          <select id="adminMode">
-            <option value="fit">Fit (keep ratio)</option>
-            <option value="stretch">Stretch (exact)</option>
-            <option value="crop">Crop (fill)</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Remove Background</label>
-          <select id="adminBgRemove">
-            <option value="no">No — keep original</option>
-            <option value="yes">Yes — remove background</option>
+    <!-- ADMIN VIDEO COMPRESSOR -->
+    <div class="card">
+      <h3>🎬 Video Compressor <span style="font-size:11px;font-weight:400;color:var(--success);background:rgba(45,202,114,.1);padding:2px 8px;border-radius:8px">Unlimited Admin</span></h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:14px">Compress product videos for Shopify, Instagram & TikTok. Runs entirely in your browser.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="field"><label>Target size (MB)</label><input type="number" id="vidMB" value="19"></div>
+        <div class="field"><label>Output format</label><select id="vidFmt"><option value="mp4">MP4</option><option value="webm">WEBM</option></select></div>
+        <div class="field"><label>Platform preset</label>
+          <select id="vidPreset" onchange="applyVidPreset()">
+            <option value="">Custom</option><option value="19">Shopify (19MB)</option><option value="650">Instagram Reels</option><option value="500">TikTok Ads</option><option value="256">Google Ads</option>
           </select>
         </div>
       </div>
-
-      <!-- Bulk Rename -->
-      <div style="background:var(--surface2);border-radius:10px;padding:20px;margin-top:4px;border:1px solid var(--border)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <label style="font-size:13px;font-weight:600;color:var(--text)">✏️ Bulk Rename <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
-          <span style="font-size:11px;color:var(--muted)">Use {n} for number, {date} for today's date</span>
-        </div>
-        <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
-          <div class="field" style="flex:1;min-width:200px">
-            <label>Filename Pattern</label>
-            <input type="text" id="adminRenamePattern" placeholder="e.g. omd-dog-product-{n}" value="">
-          </div>
-          <div class="field" style="width:100px">
-            <label>Start #</label>
-            <input type="number" id="adminRenameStart" value="1" min="1">
-          </div>
-          <div class="field" style="width:120px">
-            <label>Padding (digits)</label>
-            <select id="adminRenamePad">
-              <option value="1">1 (1,2,3)</option>
-              <option value="2" selected>2 (01,02,03)</option>
-              <option value="3">3 (001,002)</option>
-            </select>
-          </div>
-        </div>
-        <div id="renamePreview" style="margin-top:8px;font-size:12px;color:var(--muted)"></div>
+      <div style="border:2px dashed var(--border);border-radius:10px;padding:28px;text-align:center;background:var(--surface2);cursor:pointer" onclick="document.getElementById('adminVidIn').click()">
+        <div style="font-size:24px;margin-bottom:6px">🎬</div><strong>Drop video files here</strong><p style="color:var(--muted);font-size:13px;margin-top:4px">MP4 · MOV · WEBM</p>
+        <input type="file" id="adminVidIn" multiple accept="video/*" style="display:none" onchange="handleAdminVid(this.files)">
       </div>
+      <div id="vidList" style="margin-top:10px"></div>
+      <div class="action-bar" id="vidActionBar" style="display:none">
+        <button class="btn btn-primary" onclick="compressVid()">⚡ Compress Videos</button>
+        <span id="vidStatus" style="font-size:13px;color:var(--muted)"></span>
+      </div>
+      <div style="margin-top:10px;padding:11px;background:var(--surface2);border-radius:8px;font-size:12px;color:var(--muted)">ℹ️ To activate FFmpeg video compression, add <code style="font-size:11px;color:var(--accent)">Cross-Origin-Opener-Policy: same-origin</code> and <code style="font-size:11px;color:var(--accent)">Cross-Origin-Embedder-Policy: require-corp</code> headers in your Vercel config.</div>
+    </div>
 
-      <div class="preview-grid" id="adminPreviewGrid" style="margin-top:20px"></div>
-      <div class="action-bar" id="adminActionBar" style="display:none;margin-top:16px">
-        <button class="btn btn-primary btn-large" onclick="adminProcessAll()">⚡ Process & Download ZIP</button>
-        <button class="btn btn-ghost" onclick="adminClearAll()">Clear</button>
-        <span id="adminProcessStatus" style="font-size:14px;color:var(--muted)"></span>
+    <!-- KEYWORD RESEARCH -->
+    <div class="card">
+      <h3>🔍 Keyword Research <span style="font-size:11px;font-weight:400;color:var(--accent2);background:rgba(124,106,247,.1);padding:2px 8px;border-radius:8px">Claude AI</span></h3>
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <div class="field" style="flex:1"><input type="text" id="kwSeed" placeholder="e.g. dog grooming Perth, home storage, beauty salon" onkeydown="if(event.key==='Enter')genKw()"></div>
+        <button class="btn btn-primary" id="kwBtn" onclick="genKw()">Generate</button>
+        <button class="btn btn-ghost" onclick="exportKw()">CSV</button>
+      </div>
+      <div id="kwResults" style="display:none"><table class="kw-table"><thead><tr><th>Keyword</th><th>Volume</th><th>Competition</th><th>Opportunity</th><th>Intent</th><th>Save</th></tr></thead><tbody id="kwBody"></tbody></table></div>
+      <div style="margin-top:18px"><div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:9px">Saved <span id="kwCount" style="color:var(--accent)"></span></div><div id="savedKwList"><span style="font-size:13px;color:var(--muted)">No keywords saved yet.</span></div></div>
+    </div>
+
+    <!-- SEO GENERATOR -->
+    <div class="card">
+      <h3>✍️ SEO Copy Generator <span style="font-size:11px;font-weight:400;color:var(--accent2);background:rgba(124,106,247,.1);padding:2px 8px;border-radius:8px">Claude AI</span></h3>
+      <div class="card-grid" style="margin-bottom:10px">
+        <div class="field"><label>Project</label><select id="seoProj"><option value="">— Select —</option><option>Oh My Dog (OMD)</option><option>I Know A Lady (IKAL)</option><option>TidyZones</option><option>Ecom LaunchKit</option><option>Other</option></select></div>
+        <div class="field"><label>Content type</label><select id="seoType"><option value="product description">Product Description</option><option value="business listing">Business Listing</option><option value="meta description">Meta Description</option><option value="blog intro">Blog Introduction</option><option value="location page">Location Page</option><option value="social caption">Social Caption</option></select></div>
+      </div>
+      <div class="field" style="margin-bottom:10px"><label>Target keywords (optional)</label><input type="text" id="seoKw" placeholder="e.g. dog grooming Perth, mobile groomer"></div>
+      <div class="field" style="margin-bottom:12px"><label>Paste raw text</label><textarea id="seoIn" rows="5" style="resize:vertical;line-height:1.6" placeholder="Paste any raw text — competitor copy, product info, Google snippet..."></textarea></div>
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <button class="btn btn-primary" id="seoBtn" onclick="genSEO()">Generate SEO Copy</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('seoIn').value='';document.getElementById('seoOut').style.display='none'">Clear</button>
+      </div>
+      <div id="seoOut" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px"><span style="font-size:12px;color:var(--muted)">Generated copy</span><button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('seoRes').textContent).then(()=>toast('Copied!','success'))">📋 Copy</button></div>
+        <div id="seoRes" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:14px;line-height:1.8;white-space:pre-wrap;min-height:80px"></div>
+        <div id="seoCts" style="font-size:11px;color:var(--muted);margin-top:5px"></div>
       </div>
     </div>
 
-    <!-- Affiliate Banner -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
-      <div style="background:linear-gradient(135deg,rgba(150,191,113,0.08),rgba(150,191,113,0.03));border:1px solid rgba(150,191,113,0.25);border-radius:12px;padding:20px;display:flex;align-items:center;gap:16px">
-        <div style="font-size:32px">🛒</div>
-        <div style="flex:1">
-          <div style="font-weight:700;font-size:15px;margin-bottom:4px">Shopify Affiliate</div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Earn ~$150 USD per new merchant signup</div>
-          <a href="https://www.shopify.com/affiliates" target="_blank" class="btn btn-primary btn-small" style="text-decoration:none;display:inline-block">Set Up Affiliate Link →</a>
-        </div>
+    <!-- STRIPE -->
+    <div class="card">
+      <h3>💳 Stripe Settings</h3>
+      <div class="card-grid">
+        <div class="field"><label>Publishable Key (pk_live_...)</label><input type="text" id="sPK" placeholder="pk_live_..."></div>
+        <div class="field"><label>Image Resizer Price ID</label><input type="text" id="sPR" placeholder="price_..."></div>
+        <div class="field"><label>Video Compressor Price ID</label><input type="text" id="sPV" placeholder="price_..."></div>
+        <div class="field"><label>Image+Video Bundle Price ID</label><input type="text" id="sPB2" placeholder="price_..."></div>
+        <div class="field"><label>All Features Price ID</label><input type="text" id="sPA" placeholder="price_..."></div>
+        <div class="field"><label>Background Removal Price ID</label><input type="text" id="sPBg" placeholder="price_..."></div>
       </div>
-      <div style="background:linear-gradient(135deg,rgba(33,117,186,0.08),rgba(33,117,186,0.03));border:1px solid rgba(33,117,186,0.25);border-radius:12px;padding:20px;display:flex;align-items:center;gap:16px">
-        <div style="font-size:32px">🌐</div>
-        <div style="flex:1">
-          <div style="font-weight:700;font-size:15px;margin-bottom:4px">WordPress / WooCommerce</div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Earn $65–200 via hosting partners (Bluehost, SiteGround)</div>
-          <a href="https://www.bluehost.com/wordpress/wordpress-hosting#affiliates" target="_blank" class="btn btn-ghost btn-small" style="text-decoration:none;display:inline-block">Set Up Affiliate Link →</a>
-        </div>
-      </div>
+      <button class="btn btn-primary" style="margin-top:14px" onclick="saveStripe()">Save Stripe Settings</button>
     </div>
-    <div class="section-card">
-      <h3>✍️ SEO Copy Generator <span style="font-size:12px;font-weight:400;color:var(--accent2);background:rgba(124,106,247,0.1);padding:2px 8px;border-radius:10px;margin-left:8px">Claude AI</span></h3>
-      <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Paste any raw text — from Google, a competitor, a product page — and get clean, SEO-optimised copy back instantly. Admin only for now.</p>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-        <div class="field">
-          <label>Project / Business</label>
-          <select id="seoProject">
-            <option value="">— Select project —</option>
-            <option value="Oh My Dog (OMD)">Oh My Dog (OMD)</option>
-            <option value="I Know A Lady (IKAL)">I Know A Lady (IKAL)</option>
-            <option value="TidyZones">TidyZones</option>
-            <option value="Ecom LaunchKit">Ecom LaunchKit</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Content Type</label>
-          <select id="seoType">
-            <option value="product description">Product Description</option>
-            <option value="business listing">Business Listing / Directory</option>
-            <option value="blog intro">Blog Introduction</option>
-            <option value="meta description">Meta Description (155 chars)</option>
-            <option value="location page">Location / City Page</option>
-            <option value="category page">Category Page</option>
-            <option value="social caption">Social Media Caption</option>
-          </select>
-        </div>
+    <!-- SUPABASE -->
+    <div class="card">
+      <h3>🗄️ Supabase</h3>
+      <div class="card-grid">
+        <div class="field"><label>Supabase URL</label><input type="text" id="sbU" placeholder="https://xxx.supabase.co"></div>
+        <div class="field"><label>Anon Key</label><input type="password" id="sbK" placeholder="eyJ..."></div>
       </div>
-
-      <div class="field" style="margin-bottom:16px">
-        <label>Target Keywords (optional — comma separated)</label>
-        <input type="text" id="seoKeywords" placeholder="e.g. dog grooming Perth, mobile dog groomer, dog wash near me">
-      </div>
-
-      <div class="field" style="margin-bottom:16px">
-        <label>Paste Raw Text Here</label>
-        <textarea id="seoInput" rows="6" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;width:100%;outline:none;resize:vertical;line-height:1.6" placeholder="Paste any text — competitor copy, Google snippet, product info, business description — and Claude will rewrite it as clean SEO copy..."></textarea>
-      </div>
-
-      <div style="display:flex;gap:12px;margin-bottom:20px">
-        <button class="btn btn-primary" onclick="generateSEO()" id="seoBtn">Generate SEO Copy</button>
-        <button class="btn btn-ghost" onclick="document.getElementById('seoInput').value='';document.getElementById('seoOutput').style.display='none'">Clear</button>
-      </div>
-
-      <div id="seoOutput" style="display:none">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <label style="font-size:13px;color:var(--muted);font-weight:500">Generated SEO Copy</label>
-          <button class="btn btn-ghost btn-small" onclick="copySEO()">📋 Copy</button>
-        </div>
-        <div id="seoResult" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px;font-size:14px;line-height:1.8;white-space:pre-wrap;min-height:120px"></div>
-        <div id="seoMeta" style="margin-top:10px;font-size:12px;color:var(--muted)"></div>
+      <div style="display:flex;gap:12px;align-items:center;margin-top:14px">
+        <button class="btn btn-primary" onclick="saveSB()">Save & Test</button>
+        <span id="sbSt" style="font-size:13px;color:var(--muted)"></span>
       </div>
     </div>
 
-    <!-- Keyword Research Tool (Claude AI powered) -->
-    <div class="section-card">
-      <h3>🔍 Keyword Research <span style="font-size:12px;font-weight:400;color:var(--accent2);background:rgba(124,106,247,0.1);padding:2px 8px;border-radius:10px;margin-left:8px">Claude AI</span></h3>
-      <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Enter a seed topic and Claude generates real keyword opportunities — low competition, high value — saved directly to your Supabase database.</p>
-
-      <div class="kw-input-row">
-        <div class="field" style="flex:1">
-          <input type="text" id="kwSeed" placeholder="e.g. dog grooming, home organisation, beauty salon Perth" onkeydown="if(event.key==='Enter')generateKeywords()">
-        </div>
-        <button class="btn btn-primary" onclick="generateKeywords()" id="kwBtn">Generate Keywords</button>
-        <button class="btn btn-ghost" onclick="saveAllKeywords()">💾 Save All</button>
-      </div>
-
-      <div id="kwResults" style="display:none">
-        <table class="kw-table">
-          <thead>
-            <tr>
-              <th>Keyword</th>
-              <th>Est. Volume</th>
-              <th>Competition</th>
-              <th>Opportunity</th>
-              <th>Intent</th>
-              <th>Save</th>
-            </tr>
-          </thead>
-          <tbody id="kwTableBody"></tbody>
-        </table>
-      </div>
-
-      <div id="kwSaved" style="margin-top:24px">
-        <h4 style="font-size:15px;font-weight:600;margin-bottom:14px;color:var(--muted)">📊 Saved Keywords <span id="kwSavedCount" style="color:var(--accent)"></span></h4>
-        <div id="savedKwList" style="color:var(--muted);font-size:14px">No keywords saved yet. Generate some above!</div>
-      </div>
+    <!-- BG REMOVAL KEY -->
+    <div class="card">
+      <h3>🪄 remove.bg API Key</h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px">Sign up free at <a href="https://www.remove.bg/api" target="_blank" style="color:var(--accent)">remove.bg</a> — 50 free/month then $0.20 each.</p>
+      <div class="field" style="max-width:380px"><label>API Key</label><input type="password" id="bgK" placeholder="Your remove.bg API key"></div>
+      <button class="btn btn-primary" style="margin-top:12px" onclick="saveBgK()">Save Key</button>
     </div>
 
-    <!-- Stripe Settings -->
-    <div class="section-card">
-      <h3>💳 Stripe Integration</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-        <div class="field">
-          <label>Stripe Publishable Key</label>
-          <input type="text" id="stripeKeyInput" placeholder="pk_live_..." value="">
-        </div>
-        <div class="field">
-          <label>Pro Plan Price ID</label>
-          <input type="text" id="stripePriceProInput" placeholder="price_...">
-        </div>
-        <div class="field">
-          <label>Agency Plan Price ID</label>
-          <input type="text" id="stripePriceAgencyInput" placeholder="price_...">
-        </div>
-        <div class="field">
-          <label>Webhook Secret</label>
-          <input type="password" id="stripeWebhookInput" placeholder="whsec_...">
-        </div>
-      </div>
-      <button class="btn btn-primary" style="margin-top:16px" onclick="saveStripeSettings()">Save Stripe Settings</button>
+    <!-- ADSENSE -->
+    <div class="card">
+      <h3>📢 Google AdSense</h3>
+      <div class="field" style="max-width:380px"><label>Publisher ID</label><input type="text" id="adsId" placeholder="pub-XXXXXXXXXXXXXXXX"></div>
+      <button class="btn btn-primary" style="margin-top:12px" onclick="saveAds()">Activate</button>
     </div>
 
-    <!-- Supabase Settings -->
-    <div class="section-card">
-      <h3>🗄️ Supabase Connection</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-        <div class="field">
-          <label>Supabase URL</label>
-          <input type="text" id="sbUrlInput" placeholder="https://xxx.supabase.co">
-        </div>
-        <div class="field">
-          <label>Anon Key</label>
-          <input type="password" id="sbKeyInput" placeholder="eyJ...">
-        </div>
+    <!-- AFFILIATE -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+      <div style="background:var(--surface);border:1px solid rgba(150,191,113,.25);border-radius:12px;padding:18px;display:flex;gap:14px;align-items:center">
+        <div style="font-size:26px">🛒</div>
+        <div><div style="font-weight:700;margin-bottom:3px">Shopify Affiliate</div><div style="font-size:12px;color:var(--muted);margin-bottom:9px">~$150 USD per new merchant</div><a href="https://www.shopify.com/affiliates" target="_blank" class="btn btn-primary btn-sm" style="text-decoration:none">Set Up →</a></div>
       </div>
-      <button class="btn btn-primary" style="margin-top:16px" onclick="saveSupabaseSettings()">Save & Test Connection</button>
-      <span id="sbStatus" style="font-size:13px;color:var(--muted);margin-left:12px"></span>
-    </div>
-
-    <!-- Background Removal Settings -->
-    <div class="section-card">
-      <h3>🪄 Background Removal — remove.bg</h3>
-      <p style="color:var(--muted);font-size:14px;margin-bottom:16px">Sign up free at <a href="https://www.remove.bg/api" target="_blank" style="color:var(--accent)">remove.bg</a> — 50 free removals/month, then $0.20 each. Add your API key below to activate.</p>
-      <div class="field" style="max-width:400px">
-        <label>remove.bg API Key</label>
-        <input type="password" id="bgRemoveKey" placeholder="Your remove.bg API key">
-      </div>
-      <button class="btn btn-primary" style="margin-top:16px" onclick="saveBgRemoveKey()">Save API Key</button>
-      <div style="margin-top:12px;font-size:12px;color:var(--muted)">Without a key, the background removal option will skip silently and output the original image.</div>
-    </div>
-
-    <!-- Google Ads Settings -->
-    <div class="section-card">
-      <h3>📢 Google Ads / AdSense</h3>
-      <p style="color:var(--muted);font-size:14px;margin-bottom:16px">Paste your AdSense publisher ID to activate ad units across the site.</p>
-      <div class="field" style="max-width:400px">
-        <label>AdSense Publisher ID</label>
-        <input type="text" id="adsenseId" placeholder="pub-XXXXXXXXXXXXXXXX">
-      </div>
-      <button class="btn btn-primary" style="margin-top:16px" onclick="saveAdsenseId()">Activate AdSense</button>
-      <div style="margin-top:16px;padding:14px;background:var(--surface2);border-radius:8px;font-size:13px;color:var(--muted);line-height:1.6">
-        <strong style="color:var(--text)">Next steps:</strong><br>
-        1. Apply at <a href="https://www.google.com/adsense" target="_blank" style="color:var(--accent)">google.com/adsense</a><br>
-        2. Add your site URL and get approved<br>
-        3. Paste your pub ID above — ad slots are already placed on all pages
+      <div style="background:var(--surface);border:1px solid rgba(33,117,186,.25);border-radius:12px;padding:18px;display:flex;gap:14px;align-items:center">
+        <div style="font-size:26px">🌐</div>
+        <div><div style="font-weight:700;margin-bottom:3px">WordPress / WooCommerce</div><div style="font-size:12px;color:var(--muted);margin-bottom:9px">$65–200 via Bluehost</div><a href="https://www.bluehost.com/affiliates" target="_blank" class="btn btn-ghost btn-sm" style="text-decoration:none">Set Up →</a></div>
       </div>
     </div>
   </div>
+</div><!-- /page-admin -->
+
+<!-- ADMIN LOGIN MODAL -->
+<div class="modal-overlay" id="adminLoginModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('adminLoginModal')">×</button>
+    <h2>Admin Access</h2>
+    <p>Internal only — not for public use</p>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:14px">
+      <div class="field"><label>Email</label><input type="email" id="aEmail" placeholder="Email" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+      <div class="field"><label>Password</label><input type="password" id="aPass" placeholder="Password" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+      <div class="auth-err" id="aErr">Incorrect credentials</div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;padding:13px" onclick="doAdminLogin()">Sign In</button>
+  </div>
 </div>
 
-<!-- Toast -->
+<!-- UPGRADE MODAL -->
+<div class="modal-overlay" id="upgradeModal">
+  <div class="modal" style="max-width:460px">
+    <button class="modal-close" onclick="closeModal('upgradeModal')">×</button>
+    <h2>Choose your plan</h2>
+    <p>Cancel anytime. Billed monthly in USD.</p>
+    <div class="upgrade-plans">
+      <div class="uplan" onclick="selPlan('resizer',this)"><div><div class="uplan-name">Image Resizer</div><div class="uplan-desc">Unlimited images · all presets · bulk ZIP</div></div><div class="uplan-price">$5</div></div>
+      <div class="uplan" onclick="selPlan('video',this)"><div><div class="uplan-name">Video Compressor</div><div class="uplan-desc">50 compressions/month · 500MB max</div></div><div class="uplan-price">$5</div></div>
+      <div class="uplan" onclick="selPlan('bgremove',this)"><div><div class="uplan-name">Background Removal</div><div class="uplan-desc">Bulk AI background removal</div></div><div class="uplan-price">$4</div></div>
+      <div class="uplan" onclick="selPlan('bundle2',this)"><div><div class="uplan-name">Image + Video Bundle</div><div class="uplan-desc">Save $1 vs buying separate</div></div><div class="uplan-price">$9</div></div>
+      <div class="uplan" onclick="selPlan('all',this)"><div><div class="uplan-name">⭐ All Features</div><div class="uplan-desc">Every tool — best value</div></div><div class="uplan-price">$12.99</div></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;padding:13px;font-size:16px" id="checkoutBtn" onclick="goCheckout()" disabled>Continue to Payment</button>
+    <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:10px">Powered by Stripe · Secure payment</p>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-// ─────────────────────────────────────────────
-// CONFIG — update these for production
-// ─────────────────────────────────────────────
-const ADMIN_EMAIL = 'hello@flyhighdigital.com.au';
-const ADMIN_PASS  = 'AudiTTR5!95888$$$888!';  // Change this!
-const DAILY_FREE_LIMIT = 15;
+// ══════════════════════════════════
+// CONFIG — credentials stored as base64, never shown in UI
+// ══════════════════════════════════
+const _a = atob('aGVsbG9AZmx5aGlnaGRpZ2l0YWwuY29tLmF1');
+const _p = atob('RmxZSGlnaDIwMjYh'); // FlyHigh2026! — change via admin settings later
 
-// ─────────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────────
-let currentUser = null;
+const FREE_LIMIT = 15;
 let isAdmin = false;
-let pendingFiles = [];
-let adminPendingFiles = [];
-let savedKeywords = JSON.parse(localStorage.getItem('pd_keywords') || '[]');
-let stripeSettings = JSON.parse(localStorage.getItem('pd_stripe') || '{}');
-let supabaseSettings = JSON.parse(localStorage.getItem('pd_supabase') || '{}');
+let tapCount = 0, tapTimer = null;
+let selectedPlan = null;
+let adminFiles = [], pubFiles = [], adminVidFiles = [];
+let savedKw = JSON.parse(localStorage.getItem('elk_kw') || '[]');
 
-function getDailyUsage() {
-  const today = new Date().toDateString();
-  const stored = JSON.parse(localStorage.getItem('pd_usage') || '{}');
-  if (stored.date !== today) return 0;
-  return stored.count || 0;
-}
-function incrementUsage(n=1) {
-  const today = new Date().toDateString();
-  const stored = JSON.parse(localStorage.getItem('pd_usage') || '{}');
-  const count = (stored.date === today ? stored.count || 0 : 0) + n;
-  localStorage.setItem('pd_usage', JSON.stringify({ date: today, count }));
-  return count;
-}
-
-// ─────────────────────────────────────────────
-// AUTH
-// ─────────────────────────────────────────────
-function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass  = document.getElementById('loginPass').value;
-  const err   = document.getElementById('loginError');
-  err.style.display = 'none';
-
-  if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
-    currentUser = { email, name: 'JC' };
-    isAdmin = true;
-    updateNav();
-    showPage('admin');
-    toast('Welcome back, JC! ⚡ Admin access granted.', 'success');
-  } else if (email && pass.length >= 6) {
-    // Stub for real user auth (connect Supabase Auth here)
-    currentUser = { email, name: email.split('@')[0] };
-    isAdmin = false;
-    updateNav();
-    showPage('home');
-    toast('Logged in successfully!', 'success');
-  } else {
-    err.style.display = 'block';
-  }
-}
-
-function logout() {
-  currentUser = null;
-  isAdmin = false;
-  updateNav();
-  showPage('login');
-}
-
-function updateNav() {
-  document.getElementById('mainNav').style.display = currentUser ? 'flex' : 'none';
-  document.getElementById('loginNavBtn').style.display = currentUser ? 'none' : 'flex';
-  document.getElementById('logoutBtn').style.display = currentUser ? 'flex' : 'none';
-  document.getElementById('navUser').style.display = currentUser ? 'inline' : 'none';
-  if (currentUser) document.getElementById('navUser').textContent = currentUser.email;
-  document.getElementById('adminNavBtn').style.display = isAdmin ? 'flex' : 'none';
-  if (document.getElementById('usageWrap'))
-    document.getElementById('usageWrap').style.display = isAdmin ? 'none' : 'block';
-}
-
-// ─────────────────────────────────────────────
+// ══════════════════════════════════
 // PAGE ROUTING
-// ─────────────────────────────────────────────
+// ══════════════════════════════════
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const el = document.getElementById('page-' + name);
-  if (el) el.classList.add('active');
-  if (name !== 'login') {
-    document.getElementById('mainNav').style.display = 'flex';
+  document.getElementById('page-' + name)?.classList.add('active');
+  window.scrollTo(0, 0);
+  if (name === 'admin' && isAdmin) { loadAdminSettings(); loadSavedKw(); document.getElementById('statImages').textContent = localStorage.getItem('elk_imgs')||'0'; document.getElementById('statKeywords').textContent = savedKw.length; }
+}
+function scrollToTop() { document.getElementById('page-home').classList.contains('active') ? window.scrollTo({top:0,behavior:'smooth'}) : showPage('home'); }
+function goTo(id) { showPage('home'); setTimeout(() => document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'}), 60); }
+
+// ══════════════════════════════════
+// HIDDEN ADMIN TRIGGER — 5 taps on invisible footer dot
+// ══════════════════════════════════
+function handleAdminTap() {
+  tapCount++;
+  clearTimeout(tapTimer);
+  tapTimer = setTimeout(() => tapCount = 0, 3000);
+  if (tapCount >= 5) {
+    tapCount = 0;
+    if (isAdmin) { showPage('admin'); return; }
+    openModal('adminLoginModal');
+    document.getElementById('aEmail').value = '';
+    document.getElementById('aPass').value = '';
+    document.getElementById('aErr').style.display = 'none';
   }
-  if (name === 'resizer') updateUsageBar();
-  if (name === 'admin') {
-    if (!isAdmin) { showPage('login'); return; }
-    loadSavedKeywords();
-    loadAdminSettings();
-  }
-  window.scrollTo(0,0);
 }
 
-// ─────────────────────────────────────────────
-// IMAGE RESIZER — PUBLIC
-// ─────────────────────────────────────────────
+// ══════════════════════════════════
+// AUTH
+// ══════════════════════════════════
+function doAdminLogin() {
+  const email = document.getElementById('aEmail').value.trim();
+  const pass  = document.getElementById('aPass').value;
+  document.getElementById('aErr').style.display = 'none';
+  if (email === _a && pass === _p) {
+    isAdmin = true;
+    closeModal('adminLoginModal');
+    showPage('admin');
+    toast('Admin access granted ⚡', 'success');
+  } else {
+    document.getElementById('aErr').style.display = 'block';
+  }
+}
+function logout() { isAdmin = false; showPage('home'); }
+
+// ══════════════════════════════════
+// MODALS
+// ══════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
+
+function openUpgradeModal(plan) {
+  openModal('upgradeModal');
+  if (plan) {
+    const idx = {resizer:0,video:1,bgremove:2,bundle2:3,all:4}[plan];
+    if (idx !== undefined) {
+      document.querySelectorAll('.uplan').forEach(p => p.classList.remove('sel'));
+      document.querySelectorAll('.uplan')[idx]?.classList.add('sel');
+      selectedPlan = plan;
+      document.getElementById('checkoutBtn').disabled = false;
+    }
+  }
+}
+function selPlan(plan, el) {
+  document.querySelectorAll('.uplan').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel'); selectedPlan = plan;
+  document.getElementById('checkoutBtn').disabled = false;
+}
+function goCheckout() {
+  const ss = JSON.parse(localStorage.getItem('elk_stripe')||'{}');
+  const pm = {resizer:ss.pR,video:ss.pV,bgremove:ss.pBg,bundle2:ss.pB2,all:ss.pA};
+  const priceId = pm[selectedPlan];
+  if (!priceId || !ss.pk) { toast('Payment not yet configured — coming soon!','error'); closeModal('upgradeModal'); return; }
+  Stripe(ss.pk).redirectToCheckout({lineItems:[{price:priceId,quantity:1}],mode:'subscription',successUrl:location.href+'?success=1',cancelUrl:location.href});
+}
+
+// ══════════════════════════════════
+// FREE USAGE
+// ══════════════════════════════════
+function getUsage() { const t=new Date().toDateString(),s=JSON.parse(localStorage.getItem('elk_u')||'{}'); return s.date===t?s.count||0:0; }
+function addUsage(n) { const t=new Date().toDateString(),s=JSON.parse(localStorage.getItem('elk_u')||'{}'),c=(s.date===t?s.count||0:0)+n; localStorage.setItem('elk_u',JSON.stringify({date:t,count:c})); }
 function updateUsageBar() {
-  if (isAdmin) return;
-  const used = getDailyUsage();
-  const pct  = Math.min((used / DAILY_FREE_LIMIT) * 100, 100);
-  document.getElementById('usageFill').style.width = pct + '%';
-  document.getElementById('usageText').textContent = `${used} / ${DAILY_FREE_LIMIT} used today`;
-  document.getElementById('usageFill').style.background =
-    pct >= 100 ? 'var(--danger)' : pct > 70 ? 'var(--accent)' : 'linear-gradient(90deg, var(--accent2), var(--accent))';
+  const used=getUsage(), pct=Math.min(used/FREE_LIMIT*100,100);
+  document.getElementById('usageFill').style.width=pct+'%';
+  document.getElementById('usageText').textContent=`${used} / ${FREE_LIMIT}`;
+  document.getElementById('usageFill').style.background = pct>=100?'var(--danger)':pct>70?'var(--accent)':'linear-gradient(90deg,var(--accent2),var(--accent))';
 }
 
-function handleDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('dragging'); }
-function handleDragLeave(e) { e.currentTarget.classList.remove('dragging'); }
-function handleDrop(e) {
-  e.preventDefault(); e.currentTarget.classList.remove('dragging');
-  handleFiles(e.dataTransfer.files);
-}
-function handleAdminDrop(e) {
-  e.preventDefault(); e.currentTarget.classList.remove('dragging');
-  handleAdminFiles(e.dataTransfer.files);
-}
+// ══════════════════════════════════
+// DRAG & DROP
+// ══════════════════════════════════
+function onDrag(e,on) { e.preventDefault(); if(on) e.currentTarget.classList.add('drag'); else e.currentTarget.classList.remove('drag'); }
+function onPubDrop(e)   { e.preventDefault(); e.currentTarget.classList.remove('drag'); handlePubFiles(e.dataTransfer.files); }
+function onAdminDrop(e) { e.preventDefault(); e.currentTarget.classList.remove('drag'); handleAdminFiles(e.dataTransfer.files); }
 
-function handleFiles(files) {
-  if (!isAdmin) {
-    const used = getDailyUsage();
-    const remaining = DAILY_FREE_LIMIT - used;
-    if (remaining <= 0) {
-      toast('Daily limit reached (15/day). Upgrade to Pro for unlimited!', 'error');
-      return;
-    }
-    const allowed = Array.from(files).slice(0, remaining);
-    if (allowed.length < files.length) toast(`Only ${remaining} slots left today.`);
-    files = allowed;
-  }
-  Array.from(files).forEach(f => {
-    if (!f.type.startsWith('image/')) return;
-    pendingFiles.push(f);
-    addPreview(f, 'previewGrid', false);
-  });
-  if (pendingFiles.length) document.getElementById('actionBar').style.display = 'flex';
-}
-
-function handleAdminFiles(files) {
-  Array.from(files).forEach(f => {
-    if (!f.type.startsWith('image/')) return;
-    adminPendingFiles.push(f);
-    addPreview(f, 'adminPreviewGrid', true);
-  });
-  if (adminPendingFiles.length) document.getElementById('adminActionBar').style.display = 'flex';
-}
-
-function addPreview(file, gridId, admin) {
-  const grid = document.getElementById(gridId);
-  const div  = document.createElement('div');
-  div.className = 'preview-item';
-  div.id = 'prev-' + (admin?'a':'u') + '-' + file.name.replace(/\W/g,'_');
-  const reader = new FileReader();
-  reader.onload = e => {
-    div.innerHTML = `
-      <img src="${e.target.result}" alt="${file.name}">
-      <span class="status-badge status-pending">Pending</span>
-      <button class="remove-btn" onclick="removeFile('${file.name}',${admin})">×</button>
-      <div class="preview-info">
-        <div class="name">${file.name}</div>
-        <div class="size-info">${(file.size/1024).toFixed(1)} KB · ${file.type.split('/')[1].toUpperCase()}</div>
-      </div>`;
-  };
-  reader.readAsDataURL(file);
-  grid.appendChild(div);
-}
-
-function removeFile(name, admin) {
-  if (admin) adminPendingFiles = adminPendingFiles.filter(f => f.name !== name);
-  else pendingFiles = pendingFiles.filter(f => f.name !== name);
-  const id = 'prev-' + (admin?'a':'u') + '-' + name.replace(/\W/g,'_');
-  document.getElementById(id)?.remove();
-  if (!pendingFiles.length)      document.getElementById('actionBar').style.display = 'none';
-  if (!adminPendingFiles.length) document.getElementById('adminActionBar').style.display = 'none';
-}
-
-async function resizeImage(file, width, height, quality, format, mode) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      let sw = img.width, sh = img.height, tw = parseInt(width), th = parseInt(height);
-      if (mode === 'fit') {
-        const ratio = Math.min(tw/sw, th/sh);
-        tw = Math.round(sw * ratio); th = Math.round(sh * ratio);
-      } else if (mode === 'crop') {
-        const ratio = Math.max(tw/sw, th/sh);
-        sw = tw/ratio; sh = th/ratio;
-      }
-      canvas.width = tw; canvas.height = th;
-      const ctx = canvas.getContext('2d');
-      if (mode === 'crop') {
-        const ox = (img.width - sw)/2, oy = (img.height - sh)/2;
-        ctx.drawImage(img, ox, oy, sw, sh, 0, 0, tw, th);
-      } else {
-        ctx.drawImage(img, 0, 0, tw, th);
-      }
-      canvas.toBlob(blob => {
-        URL.revokeObjectURL(url);
-        resolve(blob);
-      }, format, quality / 100);
-    };
-    img.src = url;
-  });
-}
-
-async function processAll() {
-  const w = document.getElementById('optWidth').value;
-  const h = document.getElementById('optHeight').value;
-  const q = document.getElementById('optQuality').value;
-  const f = document.getElementById('optFormat').value;
-  const m = document.getElementById('optMode').value;
-  const status = document.getElementById('processStatus');
-  status.textContent = 'Processing...';
-  let done = 0;
-  for (const file of pendingFiles) {
-    const blob = await resizeImage(file, w, h, q, f, m);
-    const ext  = f.split('/')[1];
-    const name = file.name.replace(/\.[^.]+$/, '') + '.' + ext;
-    downloadBlob(blob, name);
-    const id = 'prev-u-' + file.name.replace(/\W/g,'_');
-    const badge = document.getElementById(id)?.querySelector('.status-badge');
-    if (badge) { badge.textContent = 'Done'; badge.className = 'status-badge status-done'; }
-    done++;
-  }
-  if (!isAdmin) incrementUsage(done);
+// ══════════════════════════════════
+// PUBLIC IMAGE TOOL
+// ══════════════════════════════════
+function handlePubFiles(files) {
+  const rem = FREE_LIMIT - getUsage();
+  if (rem <= 0) { toast('Free limit reached — upgrade for unlimited!','error'); openUpgradeModal('resizer'); return; }
+  const ok = Array.from(files).filter(f=>f.type.startsWith('image/')).slice(0, rem);
+  if (ok.length < files.length) toast(`Only ${rem} free slots left today`);
+  ok.forEach(f => { pubFiles.push(f); addThumb(f,'pubGrid',false); });
+  if (pubFiles.length) document.getElementById('pubActionBar').style.display='flex';
   updateUsageBar();
-  status.textContent = `✓ ${done} image${done>1?'s':''} processed!`;
-  toast(`${done} image${done>1?'s':''} processed & downloaded!`, 'success');
 }
-
-async function adminProcessAll() {
-  if (!adminPendingFiles.length) { toast('No images uploaded yet!', 'error'); return; }
-  const w       = document.getElementById('adminWidth').value;
-  const h       = document.getElementById('adminHeight').value;
-  const q       = document.getElementById('adminQuality').value;
-  const f       = document.getElementById('adminFormat').value;
-  const m       = document.getElementById('adminMode').value;
-  const bgMode  = document.getElementById('adminBgRemove').value;
-  const pattern = document.getElementById('adminRenamePattern').value.trim();
-  const status  = document.getElementById('adminProcessStatus');
-  const btn     = document.querySelector('#adminActionBar .btn-primary');
-  btn.disabled  = true; btn.textContent = 'Processing...';
-  status.textContent = '';
-
-  if (!window.JSZip) {
-    await new Promise((res, rej) => {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
-      s.onload = res; s.onerror = rej;
-      document.head.appendChild(s);
-    });
+async function processPub() {
+  const w=document.getElementById('pubW').value;
+  const btn=document.querySelector('#pubActionBar .btn-primary');
+  btn.disabled=true; btn.textContent='Processing...';
+  if(!window.JSZip) await loadZip();
+  const zip=new JSZip(); const st=document.getElementById('pubStatus');
+  for(let i=0;i<pubFiles.length;i++){
+    st.textContent=`Processing ${i+1}/${pubFiles.length}...`;
+    const b=await resizeImg(pubFiles[i],w,w,85,'image/jpeg','fit');
+    zip.file(pubFiles[i].name.replace(/\.[^.]+$/,'')+'.jpg',b);
+    markDone('pub',pubFiles[i].name);
   }
-
-  const zip = new JSZip();
-  const ext = f === 'image/jpeg' ? 'jpg' : f.split('/')[1];
-  let done  = 0;
-  let bgRemovedCount = 0;
-
-  for (let i = 0; i < adminPendingFiles.length; i++) {
-    const file = adminPendingFiles[i];
-    status.textContent = `Processing ${i + 1} of ${adminPendingFiles.length}${bgMode==='yes'?' (removing bg...)':''}...`;
-
-    let blob = await resizeImage(file, w, h, q, f, m);
-
-    if (bgMode === 'yes') {
-      const result = await removeBackground(blob);
-      if (result.removed) { blob = result.blob; bgRemovedCount++; }
-    }
-
-    // Determine filename
-    let name;
-    if (pattern) {
-      name = buildFilename(pattern, i, ext);
-    } else {
-      name = file.name.replace(/\.[^.]+$/, '') + '.' + ext;
-    }
-
-    zip.file(name, blob);
-
-    const id = 'prev-a-' + file.name.replace(/\W/g,'_');
-    const badge = document.getElementById(id)?.querySelector('.status-badge');
-    if (badge) { badge.textContent = 'Done ✓'; badge.className = 'status-badge status-done'; }
-    const info = document.getElementById(id)?.querySelector('.size-info');
-    if (info && pattern) info.textContent = '→ ' + name;
-    done++;
-  }
-
-  status.textContent = 'Zipping...';
-  const zipBlob = await zip.generateAsync({ type:'blob', compression:'DEFLATE', compressionOptions:{ level:6 } });
-  const preset  = document.querySelector('.preset-btn.active')?.textContent || 'custom';
-  const zipName = `ecom-launchkit-${done}images-${preset.replace(/\s/g,'-')}.zip`;
-  downloadBlob(zipBlob, zipName);
-
-  const total = parseInt(localStorage.getItem('pd_admin_images')||'0') + done;
-  localStorage.setItem('pd_admin_images', total);
-  document.getElementById('statImages').textContent = total;
-  btn.disabled = false; btn.textContent = '⚡ Process & Download ZIP';
-  const bgNote = bgRemovedCount ? ` · ${bgRemovedCount} backgrounds removed` : bgMode==='yes' ? ' · Add remove.bg API key in settings' : '';
-  status.textContent = `✓ ${done} images zipped${bgNote}`;
-  toast(`⚡ ${done} images → ${zipName}`, 'success');
+  const zb=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
+  dlBlob(zb,'ecom-launchkit-images.zip');
+  addUsage(pubFiles.length); updateUsageBar();
+  btn.disabled=false; btn.textContent='Convert & ZIP';
+  st.textContent=`✓ ${pubFiles.length} images downloaded`;
+  toast(`${pubFiles.length} images processed!`,'success');
 }
+function clearPub() { pubFiles=[]; document.getElementById('pubGrid').innerHTML=''; document.getElementById('pubActionBar').style.display='none'; document.getElementById('pubStatus').textContent=''; }
 
-function clearAll()      { pendingFiles=[]; document.getElementById('previewGrid').innerHTML=''; document.getElementById('actionBar').style.display='none'; }
-function adminClearAll() { adminPendingFiles=[]; document.getElementById('adminPreviewGrid').innerHTML=''; document.getElementById('adminActionBar').style.display='none'; }
-
-function downloadBlob(blob, name) {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = name;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-}
-
-// ─────────────────────────────────────────────
-// PLATFORM PRESETS
-// ─────────────────────────────────────────────
+// ══════════════════════════════════
+// ADMIN IMAGE TOOL
+// ══════════════════════════════════
 const PRESETS = {
-  'shopify-main':    { w:2048, h:2048, q:90, f:'image/jpeg', m:'fit',     label:'Shopify Main Product — 2048×2048, JPEG 90%' },
-  'shopify-thumb':   { w:800,  h:800,  q:85, f:'image/jpeg', m:'fit',     label:'Shopify Thumbnail — 800×800, JPEG 85%' },
-  'amazon':          { w:2000, h:2000, q:92, f:'image/jpeg', m:'fit',     label:'Amazon Main Image — 2000×2000, JPEG 92% (white bg recommended)' },
-  'ebay':            { w:1600, h:1600, q:88, f:'image/jpeg', m:'fit',     label:'eBay — 1600×1600, JPEG 88%' },
-  'etsy':            { w:2000, h:2000, q:90, f:'image/jpeg', m:'crop',    label:'Etsy — 2000×2000, JPEG 90%, cropped square' },
-  'woocommerce':     { w:800,  h:800,  q:85, f:'image/jpeg', m:'fit',     label:'WooCommerce — 800×800, JPEG 85%' },
-  'instagram':       { w:1080, h:1080, q:90, f:'image/jpeg', m:'crop',    label:'Instagram Square — 1080×1080, JPEG 90%' },
-  'facebook':        { w:1200, h:1200, q:88, f:'image/jpeg', m:'fit',     label:'Facebook Shop — 1200×1200, JPEG 88%' },
-  'google-shopping': { w:800,  h:800,  q:90, f:'image/jpeg', m:'fit',     label:'Google Shopping — 800×800, JPEG 90% (white bg required)' },
-  'pinterest':       { w:1000, h:1500, q:88, f:'image/jpeg', m:'crop',    label:'Pinterest Product Pin — 1000×1500, JPEG 88%' },
+  'shopify-main':  {w:2048,h:2048,q:90,f:'image/jpeg',m:'fit',  l:'Shopify Main — 2048×2048, JPEG 90%'},
+  'shopify-thumb': {w:800, h:800, q:85,f:'image/jpeg',m:'fit',  l:'Shopify Thumbnail — 800×800, JPEG 85%'},
+  'amazon':        {w:2000,h:2000,q:92,f:'image/jpeg',m:'fit',  l:'Amazon — 2000×2000, JPEG 92%'},
+  'ebay':          {w:1600,h:1600,q:88,f:'image/jpeg',m:'fit',  l:'eBay — 1600×1600, JPEG 88%'},
+  'etsy':          {w:2000,h:2000,q:90,f:'image/jpeg',m:'crop', l:'Etsy — 2000×2000 square crop, JPEG 90%'},
+  'woocommerce':   {w:800, h:800, q:85,f:'image/jpeg',m:'fit',  l:'WooCommerce — 800×800, JPEG 85%'},
+  'instagram':     {w:1080,h:1080,q:90,f:'image/jpeg',m:'crop', l:'Instagram — 1080×1080 square crop'},
+  'facebook':      {w:1200,h:1200,q:88,f:'image/jpeg',m:'fit',  l:'Facebook Shop — 1200×1200, JPEG 88%'},
+  'google-shopping':{w:800,h:800, q:90,f:'image/jpeg',m:'fit',  l:'Google Shopping — 800×800, JPEG 90%'},
+  'pinterest':     {w:1000,h:1500,q:88,f:'image/jpeg',m:'crop', l:'Pinterest — 1000×1500 portrait crop'},
 };
-
-function applyPreset(key) {
-  const p = PRESETS[key];
-  if (!p) return;
-  document.getElementById('adminWidth').value   = p.w;
-  document.getElementById('adminHeight').value  = p.h;
-  document.getElementById('adminQuality').value = p.q;
-  document.getElementById('adminFormat').value  = p.f;
-  document.getElementById('adminMode').value    = p.m;
-  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-  const info = document.getElementById('presetInfo');
-  info.style.display = 'block';
-  info.textContent = '✓ ' + p.label;
-  updateRenamePreview();
-  toast(`Preset applied: ${event.target.textContent}`, 'success');
+function applyPreset(k,e) {
+  const p=PRESETS[k]; if(!p) return;
+  document.getElementById('aW').value=p.w; document.getElementById('aH').value=p.h;
+  document.getElementById('aQ').value=p.q; document.getElementById('aF').value=p.f;
+  document.getElementById('aM').value=p.m;
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  const pi=document.getElementById('presetInfo'); pi.style.display='block'; pi.textContent='✓ '+p.l;
+  updateRenPrev(); toast('Preset: '+e.target.textContent,'success');
 }
+function handleAdminFiles(files) {
+  Array.from(files).filter(f=>f.type.startsWith('image/')).forEach(f=>{adminFiles.push(f);addThumb(f,'adminGrid',true);});
+  if(adminFiles.length) document.getElementById('adminActionBar').style.display='flex';
+}
+async function adminProcessAll() {
+  if(!adminFiles.length){toast('No images uploaded','error');return;}
+  const w=document.getElementById('aW').value,h=document.getElementById('aH').value,q=document.getElementById('aQ').value;
+  const f=document.getElementById('aF').value,m=document.getElementById('aM').value,bg=document.getElementById('aBg').value;
+  const pat=document.getElementById('aRenPat').value.trim();
+  const btn=document.getElementById('adminProcBtn'),st=document.getElementById('adminStatus');
+  btn.disabled=true; btn.textContent='Processing...';
+  if(!window.JSZip) await loadZip();
+  const zip=new JSZip(),ext=f==='image/jpeg'?'jpg':f.split('/')[1];
+  let done=0;
+  for(let i=0;i<adminFiles.length;i++){
+    st.textContent=`Processing ${i+1}/${adminFiles.length}...`;
+    let b=await resizeImg(adminFiles[i],w,h,q,f,m);
+    if(bg==='yes'){const r=await removeBg(b);if(r)b=r;}
+    const name=pat?buildFilename(pat,i,ext):adminFiles[i].name.replace(/\.[^.]+$/,'')+'.'+ext;
+    zip.file(name,b); markDone('admin',adminFiles[i].name); done++;
+  }
+  st.textContent='Zipping...';
+  const zb=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+  const pname=document.querySelector('.preset-btn.active')?.textContent||'custom';
+  dlBlob(zb,`ecom-${done}imgs-${pname.replace(/\s/g,'-')}.zip`);
+  const tot=(parseInt(localStorage.getItem('elk_imgs')||'0'))+done;
+  localStorage.setItem('elk_imgs',tot); document.getElementById('statImages').textContent=tot;
+  btn.disabled=false; btn.textContent='⚡ Process & Download ZIP';
+  st.textContent=`✓ ${done} images done`; toast(`⚡ ${done} images → ZIP`,'success');
+}
+function adminClear() { adminFiles=[]; document.getElementById('adminGrid').innerHTML=''; document.getElementById('adminActionBar').style.display='none'; document.getElementById('adminStatus').textContent=''; }
 
-// ─────────────────────────────────────────────
+// ══════════════════════════════════
 // BULK RENAME
-// ─────────────────────────────────────────────
-function buildFilename(pattern, index, ext) {
-  if (!pattern) return null;
-  const start   = parseInt(document.getElementById('adminRenameStart').value) || 1;
-  const pad     = parseInt(document.getElementById('adminRenamePad').value) || 2;
-  const n       = String(start + index).padStart(pad, '0');
-  const today   = new Date().toISOString().slice(0,10).replace(/-/g,'');
-  return pattern.replace('{n}', n).replace('{date}', today) + '.' + ext;
+// ══════════════════════════════════
+function buildFilename(pat,i,ext) {
+  const st=parseInt(document.getElementById('aRenStart').value)||1,pad=parseInt(document.getElementById('aRenPad').value)||2;
+  const n=String(st+i).padStart(pad,'0'),today=new Date().toISOString().slice(0,10).replace(/-/g,'');
+  return pat.replace('{n}',n).replace('{date}',today)+'.'+ext;
+}
+function updateRenPrev() {
+  const pat=document.getElementById('aRenPat').value.trim(),pr=document.getElementById('renPrev');
+  if(!pat){pr.textContent='';return;}
+  const f=document.getElementById('aF').value,ext=f==='image/jpeg'?'jpg':f.split('/')[1];
+  pr.textContent=`Preview: ${buildFilename(pat,0,ext)}, ${buildFilename(pat,1,ext)}, ${buildFilename(pat,2,ext)}...`;
 }
 
-function updateRenamePreview() {
-  const pattern = document.getElementById('adminRenamePattern').value.trim();
-  const preview = document.getElementById('renamePreview');
-  if (!pattern) { preview.textContent = ''; return; }
-  const f   = document.getElementById('adminFormat').value;
-  const ext = f === 'image/jpeg' ? 'jpg' : f.split('/')[1];
-  preview.textContent = `Preview: ${buildFilename(pattern,0,ext)}, ${buildFilename(pattern,1,ext)}, ${buildFilename(pattern,2,ext)}...`;
+// ══════════════════════════════════
+// THUMBNAIL HELPERS
+// ══════════════════════════════════
+function addThumb(file,gridId,admin) {
+  const grid=document.getElementById(gridId),div=document.createElement('div');
+  div.className='preview-item'; div.id=`pv-${admin?'a':'p'}-${file.name.replace(/\W/g,'_')}`;
+  const r=new FileReader();
+  r.onload=e=>{div.innerHTML=`<img src="${e.target.result}" alt=""><span class="pbadge b-pending">Pending</span><button class="premove" onclick="removeThumb('${file.name}',${admin})">×</button><div class="preview-info"><div class="pname">${file.name}</div><div class="psize">${(file.size/1024).toFixed(1)} KB</div></div>`;};
+  r.readAsDataURL(file); grid.appendChild(div);
+}
+function markDone(prefix,name) {
+  const b=document.getElementById(`pv-${prefix==='admin'?'a':'p'}-${name.replace(/\W/g,'_')}`)?.querySelector('.pbadge');
+  if(b){b.textContent='Done ✓';b.className='pbadge b-done';}
+}
+function removeThumb(name,admin) {
+  if(admin) adminFiles=adminFiles.filter(f=>f.name!==name); else pubFiles=pubFiles.filter(f=>f.name!==name);
+  document.getElementById(`pv-${admin?'a':'p'}-${name.replace(/\W/g,'_')}`)?.remove();
+  if(!adminFiles.length) document.getElementById('adminActionBar').style.display='none';
+  if(!pubFiles.length)   document.getElementById('pubActionBar').style.display='none';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  ['adminRenamePattern','adminRenameStart','adminRenamePad','adminFormat'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('input', updateRenamePreview);
+// ══════════════════════════════════
+// IMAGE PROCESSING
+// ══════════════════════════════════
+async function resizeImg(file,width,height,quality,format,mode) {
+  return new Promise(res=>{
+    const img=new Image(),url=URL.createObjectURL(file);
+    img.onload=()=>{
+      const c=document.createElement('canvas');
+      let sw=img.width,sh=img.height,tw=parseInt(width),th=parseInt(height);
+      if(mode==='fit'){const r=Math.min(tw/sw,th/sh);tw=Math.round(sw*r);th=Math.round(sh*r);}
+      else if(mode==='crop'){const r=Math.max(tw/sw,th/sh);sw=tw/r;sh=th/r;}
+      c.width=tw;c.height=th;
+      const ctx=c.getContext('2d');
+      if(mode==='crop') ctx.drawImage(img,(img.width-sw)/2,(img.height-sh)/2,sw,sh,0,0,tw,th);
+      else ctx.drawImage(img,0,0,tw,th);
+      c.toBlob(b=>{URL.revokeObjectURL(url);res(b);},format,quality/100);
+    };
+    img.src=url;
   });
-});
-
-// ─────────────────────────────────────────────
-// BACKGROUND REMOVAL (browser ML — no API cost)
-// ─────────────────────────────────────────────
-let bgRemoveWorker = null;
-
-async function loadBgRemoval() {
-  if (window._bgModelLoaded) return;
-  // Load @huggingface/transformers via CDN
-  if (!window.pipeline) {
-    await new Promise((res, rej) => {
-      const s = document.createElement('script');
-      s.type = 'module';
-      s.textContent = `
-        import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0';
-        env.allowLocalModels = false;
-        window._bgPipeline = await pipeline('image-segmentation', 'Xenova/segformer-b0-finetuned-ade-512-512', { revision: 'main' });
-        window._bgModelLoaded = true;
-      `;
-      document.head.appendChild(s);
-      // Poll until loaded (model download can take 10-30s first time)
-      const check = setInterval(() => { if (window._bgModelLoaded) { clearInterval(check); res(); } }, 500);
-      setTimeout(() => { clearInterval(check); rej(new Error('timeout')); }, 60000);
-    });
-  }
 }
 
-async function removeBackground(blob) {
-  // Use remove.bg API placeholder — in production wire up remove.bg or replicate.com
-  // For now we return the original blob with a note
-  // To enable: sign up at remove.bg, get API key, store in admin settings
-  const sbSettings = JSON.parse(localStorage.getItem('pd_bgremove')||'{}');
-  if (!sbSettings.apiKey) {
-    // Fallback: return original (user needs to add remove.bg API key in settings)
-    return { blob, removed: false };
-  }
-  const formData = new FormData();
-  formData.append('image_file', blob);
-  formData.append('size', 'auto');
-  try {
-    const res = await fetch('https://api.remove.bg/v1.0/removebg', {
-      method: 'POST',
-      headers: { 'X-Api-Key': sbSettings.apiKey },
-      body: formData
-    });
-    if (res.ok) {
-      const resultBlob = await res.blob();
-      return { blob: resultBlob, removed: true };
-    }
-  } catch(e) {}
-  return { blob, removed: false };
+// ══════════════════════════════════
+// BACKGROUND REMOVAL
+// ══════════════════════════════════
+async function removeBg(blob) {
+  const s=JSON.parse(localStorage.getItem('elk_bgk')||'{}');
+  if(!s.key) return null;
+  try{const fd=new FormData();fd.append('image_file',blob);fd.append('size','auto');const r=await fetch('https://api.remove.bg/v1.0/removebg',{method:'POST',headers:{'X-Api-Key':s.key},body:fd});if(r.ok)return await r.blob();}catch(e){}
+  return null;
 }
 
-// ─────────────────────────────────────────────
-// SEO GENERATOR — Claude AI powered
-// ─────────────────────────────────────────────
-async function generateSEO() {
-  const raw      = document.getElementById('seoInput').value.trim();
-  const type     = document.getElementById('seoType').value;
-  const project  = document.getElementById('seoProject').value;
-  const keywords = document.getElementById('seoKeywords').value.trim();
-  const btn      = document.getElementById('seoBtn');
-  const output   = document.getElementById('seoOutput');
-  const result   = document.getElementById('seoResult');
-  const meta     = document.getElementById('seoMeta');
-
-  if (!raw) { toast('Paste some raw text first!', 'error'); return; }
-
-  btn.disabled = true; btn.textContent = 'Generating...';
-  result.textContent = ''; output.style.display = 'block';
-  result.innerHTML = '<span style="color:var(--muted)">Claude is writing your SEO copy...</span>';
-
-  const prompt = `You are an expert SEO copywriter specialising in Australian ecommerce and local business content.
-
-Task: Rewrite the following raw text as a polished, SEO-optimised ${type}.
-${project ? `Project/Business: ${project}` : ''}
-${keywords ? `Target keywords to naturally include: ${keywords}` : ''}
-
-Rules:
-- Natural keyword integration, never forced or keyword-stuffed
-- Australian English spelling (colour, optimise, etc)
-- Engaging, human tone — not robotic
-- For meta descriptions: strictly under 155 characters
-- For product/business copy: include a subtle call to action
-- Do NOT include any preamble, explanation, or labels — output the copy only
-
-Raw text to rewrite:
-${raw}`;
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await response.json();
-    const text = data.content?.map(b => b.text || '').join('') || 'Error generating copy.';
-    result.textContent = text;
-    meta.textContent = `${text.length} characters · ${text.split(/\s+/).length} words · ${project || 'No project selected'}`;
-    toast('SEO copy generated!', 'success');
-  } catch(e) {
-    result.textContent = 'Error connecting to Claude API. Check your network.';
-    toast('API error — check console', 'error');
-  }
-  btn.disabled = false; btn.textContent = 'Generate SEO Copy';
+// ══════════════════════════════════
+// VIDEO (admin stub — awaiting Vercel headers)
+// ══════════════════════════════════
+let adminVids=[];
+function applyVidPreset(){const v=document.getElementById('vidPreset').value;if(v)document.getElementById('vidMB').value=v;}
+function handleAdminVid(files){
+  adminVids=Array.from(files).filter(f=>f.type.startsWith('video/'));
+  document.getElementById('vidList').innerHTML=adminVids.map(f=>`<div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--surface2);border-radius:8px;margin-bottom:5px;font-size:13px"><span>🎬 ${f.name}</span><span style="color:var(--muted)">${(f.size/1024/1024).toFixed(1)} MB</span></div>`).join('');
+  if(adminVids.length) document.getElementById('vidActionBar').style.display='flex';
 }
+function compressVid(){toast('Add COOP/COEP headers to Vercel config to activate FFmpeg video compression — see info box below','');}
 
-function copySEO() {
-  const text = document.getElementById('seoResult').textContent;
-  navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard!', 'success'));
-}
-
-// ─────────────────────────────────────────────
-// KEYWORD RESEARCH — Claude AI powered
-// ─────────────────────────────────────────────
-async function generateKeywords() {
-  const seed = document.getElementById('kwSeed').value.trim();
-  if (!seed) { toast('Enter a seed keyword first!', 'error'); return; }
-  const btn  = document.getElementById('kwBtn');
-  const body = document.getElementById('kwTableBody');
-  const results = document.getElementById('kwResults');
-
-  btn.disabled = true; btn.textContent = 'Researching...';
-  body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">Claude is researching keywords...</td></tr>';
-  results.style.display = 'block';
-
-  const prompt = `You are an SEO keyword research expert for Australian ecommerce and local business.
-
-Generate 15 keyword ideas based on the seed topic: "${seed}"
-
-Focus on:
-- Long-tail keywords (3–5 words) that are easier to rank for
-- Australian search intent where relevant
-- Mix of informational, commercial, and transactional intent
-- Low to medium competition opportunities
-
-Respond ONLY with a valid JSON array, no markdown, no explanation:
-[
-  {
-    "keyword": "exact keyword phrase",
-    "volume": "High|Medium|Low",
-    "competition": "High|Medium|Low",
-    "intent": "Informational|Commercial|Transactional|Local",
-    "opportunity": "High|Medium|Low"
-  }
-]`;
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await response.json();
-    const raw  = data.content?.map(b => b.text || '').join('') || '[]';
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const keywords = JSON.parse(clean);
-
-    body.innerHTML = '';
-    keywords.forEach(k => {
-      const oppClass = k.opportunity === 'High' ? 'vol-high' : k.opportunity === 'Medium' ? 'vol-med' : 'vol-low';
-      const volClass = k.volume === 'High' ? 'vol-high' : k.volume === 'Medium' ? 'vol-med' : 'vol-low';
-      const row = document.createElement('tr');
-      const kwSafe = k.keyword.replace(/'/g, "\\'");
-      row.innerHTML = `
-        <td><strong>${k.keyword}</strong></td>
-        <td><span class="vol-badge ${volClass}">${k.volume}</span></td>
-        <td>${k.competition}</td>
-        <td><span class="vol-badge ${oppClass}">${k.opportunity}</span></td>
-        <td><span style="font-size:12px;color:var(--muted)">${k.intent}</span></td>
-        <td><button class="btn btn-ghost btn-small" onclick="saveKeyword('${kwSafe}','${k.volume}','${k.competition}','${k.intent}','${k.opportunity}')">+ Save</button></td>`;
+// ══════════════════════════════════
+// KEYWORD RESEARCH
+// ══════════════════════════════════
+async function genKw() {
+  const seed=document.getElementById('kwSeed').value.trim();
+  if(!seed){toast('Enter a seed keyword','error');return;}
+  const btn=document.getElementById('kwBtn'),body=document.getElementById('kwBody');
+  btn.disabled=true;btn.textContent='Researching...';
+  document.getElementById('kwResults').style.display='block';
+  body.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:14px">Claude is researching...</td></tr>';
+  const prompt=`You are an SEO keyword research expert for Australian ecommerce and local business. Generate 15 keyword ideas based on the seed: "${seed}". Focus on long-tail (3-5 words), Australian search intent, low-to-medium competition. Respond ONLY with valid JSON array, no markdown:\n[{"keyword":"phrase","volume":"High|Medium|Low","competition":"High|Medium|Low","intent":"Informational|Commercial|Transactional|Local","opportunity":"High|Medium|Low"}]`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const d=await r.json();
+    const raw=d.content?.map(b=>b.text||'').join('')||'[]';
+    const kws=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    body.innerHTML='';
+    kws.forEach(k=>{
+      const vc=k.volume==='High'?'vh':k.volume==='Medium'?'vm':'vl';
+      const oc=k.opportunity==='High'?'vh':k.opportunity==='Medium'?'vm':'vl';
+      const ks=k.keyword.replace(/'/g,"\\'");
+      const row=document.createElement('tr');
+      row.innerHTML=`<td><strong>${k.keyword}</strong></td><td><span class="vol-badge ${vc}">${k.volume}</span></td><td>${k.competition}</td><td><span class="vol-badge ${oc}">${k.opportunity}</span></td><td style="color:var(--muted);font-size:12px">${k.intent}</td><td><button class="btn btn-ghost btn-sm" onclick="saveKw('${ks}','${k.volume}','${k.competition}','${k.intent}','${k.opportunity}')">+ Save</button></td>`;
       body.appendChild(row);
     });
-    toast(`Generated ${keywords.length} keyword ideas for "${seed}"`, 'success');
-  } catch(e) {
-    body.innerHTML = '<tr><td colspan="6" style="color:var(--danger);padding:20px">Error generating keywords. Check API connection.</td></tr>';
-    toast('Keyword generation failed', 'error');
-  }
-  btn.disabled = false; btn.textContent = 'Generate Keywords';
+    toast(`Generated ${kws.length} keywords`,'success');
+  }catch(e){body.innerHTML='<tr><td colspan="6" style="color:var(--danger);padding:14px">Error — check API connection</td></tr>';}
+  btn.disabled=false;btn.textContent='Generate';
+}
+function saveKw(kw,vol,comp,intent,opp) {
+  if(savedKw.find(k=>k.kw===kw)){toast('Already saved');return;}
+  const e={kw,vol,comp,intent,opp,date:new Date().toLocaleDateString('en-AU'),id:Date.now()};
+  savedKw.push(e); localStorage.setItem('elk_kw',JSON.stringify(savedKw));
+  document.getElementById('statKeywords').textContent=savedKw.length;
+  loadSavedKw(); pushKwToSB(e); toast(`"${kw}" saved`,'success');
+}
+function loadSavedKw() {
+  savedKw=JSON.parse(localStorage.getItem('elk_kw')||'[]');
+  const el=document.getElementById('savedKwList'),ct=document.getElementById('kwCount');
+  if(ct) ct.textContent=savedKw.length?`(${savedKw.length})`:'';
+  if(!savedKw.length){el.innerHTML='<span style="font-size:13px;color:var(--muted)">No keywords saved yet.</span>';return;}
+  el.innerHTML=savedKw.map(k=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;background:var(--surface2);border-radius:8px;margin-bottom:5px;font-size:13px"><span><strong>${k.kw}</strong> <span style="color:var(--muted);font-size:11px;margin-left:5px">${k.intent||''} · ${k.date}</span></span><div style="display:flex;gap:6px;align-items:center"><span class="vol-badge ${k.vol==='High'?'vh':k.vol==='Medium'?'vm':'vl'}">${k.vol}</span><button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px" onclick="delKw(${k.id})">×</button></div></div>`).join('');
+}
+function delKw(id){savedKw=savedKw.filter(k=>k.id!==id);localStorage.setItem('elk_kw',JSON.stringify(savedKw));loadSavedKw();}
+function exportKw(){
+  if(!savedKw.length){toast('No keywords to export','error');return;}
+  const csv=['Keyword,Volume,Competition,Intent,Opportunity,Date',...savedKw.map(k=>`"${k.kw}",${k.vol},${k.comp},${k.intent||''},${k.opp||''},${k.date}`)].join('\n');
+  dlBlob(new Blob([csv],{type:'text/csv'}),'keywords.csv'); toast('Exported as CSV','success');
+}
+async function pushKwToSB(entry){
+  const sb=JSON.parse(localStorage.getItem('elk_sb')||'{}');
+  if(!sb.u||!sb.k) return;
+  try{await fetch(`${sb.u}/rest/v1/keywords`,{method:'POST',headers:{'Content-Type':'application/json','apikey':sb.k,'Authorization':`Bearer ${sb.k}`,'Prefer':'return=minimal'},body:JSON.stringify({keyword:entry.kw,volume:entry.vol,competition:entry.comp,intent:entry.intent,opportunity:entry.opp,created_at:new Date().toISOString()})});}catch(e){}
 }
 
-function saveKeyword(kw, vol, comp, intent, opp) {
-  if (savedKeywords.find(k => k.kw === kw)) { toast('Already saved!'); return; }
-  const entry = { kw, vol, comp, intent: intent||'', opp: opp||'', date: new Date().toLocaleDateString('en-AU'), id: Date.now() };
-  savedKeywords.push(entry);
-  localStorage.setItem('pd_keywords', JSON.stringify(savedKeywords));
-  document.getElementById('statKeywords').textContent = savedKeywords.length;
-  loadSavedKeywords();
-  toast(`"${kw}" saved!`, 'success');
-  saveKeywordToSupabase(entry);
+// ══════════════════════════════════
+// SEO GENERATOR
+// ══════════════════════════════════
+async function genSEO() {
+  const raw=document.getElementById('seoIn').value.trim();
+  if(!raw){toast('Paste some text first','error');return;}
+  const type=document.getElementById('seoType').value,proj=document.getElementById('seoProj').value,kws=document.getElementById('seoKw').value.trim();
+  const btn=document.getElementById('seoBtn'),out=document.getElementById('seoOut'),res=document.getElementById('seoRes');
+  btn.disabled=true;btn.textContent='Generating...';out.style.display='block';res.innerHTML='<span style="color:var(--muted)">Writing your copy...</span>';
+  const prompt=`You are an expert SEO copywriter for Australian ecommerce and local business. Rewrite the following as a polished, SEO-optimised ${type}.${proj?`\nProject: ${proj}`:''}${kws?`\nTarget keywords: ${kws}`:''}\nRules: Australian English, natural keyword use, engaging tone, no preamble — output copy only.\n\nRaw text:\n${raw}`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const d=await r.json(),text=d.content?.map(b=>b.text||'').join('')||'Error.';
+    res.textContent=text; document.getElementById('seoCts').textContent=`${text.length} chars · ${text.split(/\s+/).length} words`;
+    toast('SEO copy generated!','success');
+  }catch(e){res.textContent='Error — check API connection.';}
+  btn.disabled=false;btn.textContent='Generate SEO Copy';
 }
 
-async function saveKeywordToSupabase(entry) {
-  const sb = JSON.parse(localStorage.getItem('pd_supabase')||'{}');
-  if (!sb.url || !sb.key) return; // No Supabase configured yet
-  try {
-    await fetch(`${sb.url}/rest/v1/keywords`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': sb.key,
-        'Authorization': `Bearer ${sb.key}`,
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({
-        keyword: entry.kw,
-        volume: entry.vol,
-        competition: entry.comp,
-        intent: entry.intent,
-        opportunity: entry.opp,
-        created_at: new Date().toISOString()
-      })
-    });
-  } catch(e) { console.log('Supabase save failed:', e); }
+// ══════════════════════════════════
+// ADMIN SETTINGS
+// ══════════════════════════════════
+function saveStripe(){localStorage.setItem('elk_stripe',JSON.stringify({pk:document.getElementById('sPK').value.trim(),pR:document.getElementById('sPR').value.trim(),pV:document.getElementById('sPV').value.trim(),pB2:document.getElementById('sPB2').value.trim(),pA:document.getElementById('sPA').value.trim(),pBg:document.getElementById('sPBg').value.trim()}));toast('Stripe settings saved','success');}
+function saveSB(){localStorage.setItem('elk_sb',JSON.stringify({u:document.getElementById('sbU').value.trim(),k:document.getElementById('sbK').value.trim()}));document.getElementById('sbSt').textContent='✓ Saved';toast('Supabase saved','success');}
+function saveBgK(){localStorage.setItem('elk_bgk',JSON.stringify({key:document.getElementById('bgK').value.trim()}));toast('remove.bg key saved','success');}
+function saveAds(){localStorage.setItem('elk_ads',document.getElementById('adsId').value.trim());toast('AdSense ID saved','success');}
+function loadAdminSettings(){
+  const s=JSON.parse(localStorage.getItem('elk_stripe')||'{}'),sb=JSON.parse(localStorage.getItem('elk_sb')||'{}'),bg=JSON.parse(localStorage.getItem('elk_bgk')||'{}'),ad=localStorage.getItem('elk_ads')||'';
+  if(s.pk) document.getElementById('sPK').value=s.pk;
+  if(s.pR) document.getElementById('sPR').value=s.pR;
+  if(s.pV) document.getElementById('sPV').value=s.pV;
+  if(s.pB2) document.getElementById('sPB2').value=s.pB2;
+  if(s.pA) document.getElementById('sPA').value=s.pA;
+  if(s.pBg) document.getElementById('sPBg').value=s.pBg;
+  if(sb.u) document.getElementById('sbU').value=sb.u;
+  if(sb.k) document.getElementById('sbK').value=sb.k;
+  if(bg.key) document.getElementById('bgK').value=bg.key;
+  if(ad) document.getElementById('adsId').value=ad;
 }
 
-function saveAllKeywords() {
-  toast('Select individual keywords to save, or they save automatically after generating.', '');
-}
+// ══════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════
+async function loadZip(){return new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+function dlBlob(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+let toastT;
+function toast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast show '+type;clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),3500);}
 
-function loadSavedKeywords() {
-  savedKeywords = JSON.parse(localStorage.getItem('pd_keywords') || '[]');
-  const el = document.getElementById('savedKwList');
-  const countEl = document.getElementById('kwSavedCount');
-  document.getElementById('statKeywords').textContent = savedKeywords.length;
-  if (countEl) countEl.textContent = savedKeywords.length ? `(${savedKeywords.length})` : '';
-  if (!savedKeywords.length) { el.innerHTML = '<span style="color:var(--muted);font-size:14px">No keywords saved yet.</span>'; return; }
-  el.innerHTML = savedKeywords.map(k => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border-radius:8px;margin-bottom:6px;font-size:13px">
-      <span>
-        <strong>${k.kw}</strong>
-        <span style="color:var(--muted);margin-left:8px;font-size:11px">${k.intent || ''}</span>
-        <span style="color:var(--muted);margin-left:4px">· ${k.date}</span>
-      </span>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span class="vol-badge ${k.vol==='High'?'vol-high':k.vol==='Medium'?'vol-med':'vol-low'}">${k.vol}</span>
-        <span class="vol-badge ${k.opp==='High'?'vol-high':k.opp==='Medium'?'vol-med':'vol-low'}" style="font-size:10px">${k.opp||''}</span>
-        <button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px" onclick="deleteKeyword(${k.id})">×</button>
-      </div>
-    </div>`).join('');
-}
-
-function deleteKeyword(id) {
-  savedKeywords = savedKeywords.filter(k => k.id !== id);
-  localStorage.setItem('pd_keywords', JSON.stringify(savedKeywords));
-  loadSavedKeywords();
-}
-
-
-// ─────────────────────────────────────────────
-// STRIPE
-// ─────────────────────────────────────────────
-async function handleStripeCheckout(plan) {
-  const settings = JSON.parse(localStorage.getItem('pd_stripe') || '{}');
-  if (!settings.publishableKey) {
-    toast('Stripe not configured yet — admin must add keys.', 'error');
-    return;
-  }
-  const stripe = Stripe(settings.publishableKey);
-  const priceId = plan === 'pro' ? settings.pricePro : settings.priceAgency;
-  if (!priceId) { toast('Price ID not configured for this plan.', 'error'); return; }
-  // In production: call your backend to create a Checkout Session and redirect
-  toast('Redirecting to Stripe Checkout...', 'success');
-  // stripe.redirectToCheckout({ lineItems:[{price: priceId, quantity:1}], mode:'subscription', successUrl: window.location.href+'?success=1', cancelUrl: window.location.href });
-}
-
-function saveStripeSettings() {
-  const settings = {
-    publishableKey: document.getElementById('stripeKeyInput').value.trim(),
-    pricePro:       document.getElementById('stripePriceProInput').value.trim(),
-    priceAgency:    document.getElementById('stripePriceAgencyInput').value.trim(),
-    webhookSecret:  document.getElementById('stripeWebhookInput').value.trim(),
-  };
-  localStorage.setItem('pd_stripe', JSON.stringify(settings));
-  toast('Stripe settings saved!', 'success');
-}
-
-function saveSupabaseSettings() {
-  const settings = {
-    url: document.getElementById('sbUrlInput').value.trim(),
-    key: document.getElementById('sbKeyInput').value.trim(),
-  };
-  localStorage.setItem('pd_supabase', JSON.stringify(settings));
-  document.getElementById('sbStatus').textContent = '✓ Settings saved (test with first keyword save)';
-  toast('Supabase settings saved!', 'success');
-}
-
-function saveAdsenseId() {
-  const id = document.getElementById('adsenseId').value.trim();
-  if (id) {
-    localStorage.setItem('pd_adsense', id);
-    toast('AdSense ID saved! Add the script tag to go live.', 'success');
-  }
-}
-
-function saveBgRemoveKey() {
-  const key = document.getElementById('bgRemoveKey').value.trim();
-  localStorage.setItem('pd_bgremove', JSON.stringify({ apiKey: key }));
-  toast('remove.bg API key saved!', 'success');
-}
-
-function loadAdminSettings() {
-  const stripe = JSON.parse(localStorage.getItem('pd_stripe')||'{}');
-  const sb     = JSON.parse(localStorage.getItem('pd_supabase')||'{}');
-  const ads    = localStorage.getItem('pd_adsense')||'';
-  const bg     = JSON.parse(localStorage.getItem('pd_bgremove')||'{}');
-  if (stripe.publishableKey) document.getElementById('stripeKeyInput').value = stripe.publishableKey;
-  if (stripe.pricePro)       document.getElementById('stripePriceProInput').value = stripe.pricePro;
-  if (stripe.priceAgency)    document.getElementById('stripePriceAgencyInput').value = stripe.priceAgency;
-  if (sb.url)  document.getElementById('sbUrlInput').value = sb.url;
-  if (sb.key)  document.getElementById('sbKeyInput').value = sb.key;
-  if (ads)     document.getElementById('adsenseId').value = ads;
-  if (bg.apiKey) document.getElementById('bgRemoveKey').value = bg.apiKey;
-  const adminImages = localStorage.getItem('pd_admin_images') || '0';
-  document.getElementById('statImages').textContent = adminImages;
-}
-
-// ─────────────────────────────────────────────
-// TOAST
-// ─────────────────────────────────────────────
-let toastTimer;
-function toast(msg, type='') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast show ' + type;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
-}
-
-// ─────────────────────────────────────────────
 // INIT
-// ─────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  showPage('login');
-});
+document.addEventListener('DOMContentLoaded',()=>updateUsageBar());
 </script>
 </body>
 </html>
