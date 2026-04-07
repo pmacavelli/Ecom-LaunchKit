@@ -7,6 +7,7 @@
 <meta name="description" content="Image resizer, video compressor, background removal and more — built for ecommerce sellers.">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 <script src="https://js.stripe.com/v3/"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#08080e;--surface:#111118;--surface2:#18181f;--border:#252530;--accent:#f0c14b;--accent2:#7c6af7;--text:#eeeef5;--muted:#64647a;--danger:#ff5252;--success:#2dca72;--radius:12px;}
 *{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
@@ -32,7 +33,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 4
 .hero{padding:100px 48px 80px;text-align:center;position:relative;overflow:hidden;}
 .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% -10%,rgba(124,106,247,.18),transparent);pointer-events:none;}
 .hero-badge{display:inline-block;padding:5px 14px;background:rgba(240,193,75,.1);border:1px solid rgba(240,193,75,.25);border-radius:20px;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.3px;margin-bottom:24px;}
-.hero h1{font-family:'Syne',sans-serif;font-size:clamp(40px,6vw,68px);font-weight:800;line-height:1.08;margin-bottom:20px;}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(28px,3.8vw,48px);font-weight:700;line-height:1.15;margin-bottom:20px;letter-spacing:-0.5px;}
 .hero h1 em{color:var(--accent);font-style:normal;}
 .hero p{color:var(--muted);font-size:18px;max-width:520px;margin:0 auto 40px;line-height:1.65;}
 .hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
@@ -42,7 +43,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 4
 .section-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
 .section-inner.rev{direction:rtl;}.section-inner.rev>*{direction:ltr;}
 .section-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
-.section-title{font-family:'Syne',sans-serif;font-size:clamp(28px,4vw,40px);font-weight:800;line-height:1.15;margin-bottom:16px;}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(22px,2.6vw,34px);font-weight:700;line-height:1.2;margin-bottom:16px;letter-spacing:-0.3px;}
 .section-desc{color:var(--muted);font-size:16px;line-height:1.7;margin-bottom:24px;}
 .price-tag{display:flex;align-items:baseline;gap:6px;margin-bottom:24px;}
 .price-tag .amt{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;}
@@ -63,7 +64,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 4
 /* PRICING */
 .pricing-section{padding:80px 48px;border-top:1px solid var(--border);}
 .pricing-inner{max-width:1100px;margin:0 auto;}
-.pricing-title{font-family:'Syne',sans-serif;font-size:clamp(32px,4vw,44px);font-weight:800;text-align:center;margin-bottom:12px;}
+.pricing-title{font-family:'Syne',sans-serif;font-size:clamp(24px,2.8vw,36px);font-weight:700;text-align:center;margin-bottom:12px;letter-spacing:-0.3px;}
 .pricing-sub{text-align:center;color:var(--muted);font-size:16px;margin-bottom:52px;}
 .plans-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
 .plan{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;position:relative;transition:border-color .2s;}
@@ -235,7 +236,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
         <h2 class="section-title">Smaller videos,<br>faster stores</h2>
         <p class="section-desc">Shopify limits product videos to 20MB. Instagram, TikTok ads and Google all have strict size limits. Compress and convert your product videos right in the browser — no external servers, completely private.</p>
         <div class="price-tag"><span class="amt">$5</span><span class="per">USD / month</span></div>
-        <div class="cap-note">📦 500MB max file · 50 compressions/month</div>
+        <div class="cap-note">🆓 2 free/day · 📦 500MB max · Unlimited on paid plan</div>
         <ul class="feat-list">
           <li>Compress MP4, MOV, WEBM in browser</li>
           <li>Platform presets (Shopify, Instagram, TikTok Ads)</li>
@@ -247,17 +248,40 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
       <div class="demo-box">
         <div class="demo-icon">🎬</div>
         <div class="demo-title">Video Compressor & Converter</div>
-        <div class="demo-sub">Subscribers only</div>
-        <div class="locked-box">
-          <div style="font-size:32px;margin-bottom:10px">🔒</div>
-          <div style="font-weight:600;margin-bottom:6px">Subscribers only</div>
-          <p style="color:var(--muted);font-size:13px;margin-bottom:18px">$5/month — compress product videos for any platform</p>
-          <button class="btn btn-primary btn-sm" onclick="openUpgradeModal('video')">Unlock Video Tools</button>
+        <div class="demo-sub">Free: 2 compressions/day. Subscribe for unlimited.</div>
+        <div class="usage-wrap" id="videoUsageWrap">
+          <div class="usage-label"><span>Free daily usage</span><span id="videoUsageText">0 / 2</span></div>
+          <div class="usage-bar"><div class="usage-fill" id="videoUsageFill" style="width:0%"></div></div>
         </div>
-        <div style="margin-top:14px;display:flex;flex-direction:column;gap:7px">
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:9px 12px;background:var(--surface2);border-radius:8px"><span style="color:var(--muted)">Shopify limit</span><span style="color:var(--accent);font-weight:600">20MB max</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:9px 12px;background:var(--surface2);border-radius:8px"><span style="color:var(--muted)">Instagram Reels</span><span style="color:var(--accent);font-weight:600">650MB / 60s</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:9px 12px;background:var(--surface2);border-radius:8px"><span style="color:var(--muted)">TikTok Ads</span><span style="color:var(--accent);font-weight:600">500MB max</span></div>
+        <div style="border:2px dashed var(--border);border-radius:10px;padding:28px 20px;text-align:center;background:var(--surface2);cursor:pointer" id="videoDrop" onclick="document.getElementById('pubVideoIn').click()">
+          <div style="font-size:26px;margin-bottom:6px">🎬</div>
+          <strong style="font-size:14px">Drop video here</strong>
+          <p style="color:var(--muted);font-size:13px;margin-top:4px">MP4 · MOV · WEBM · max 500MB</p>
+          <input type="file" id="pubVideoIn" accept="video/*" style="display:none" onchange="handlePubVideo(this.files)">
+        </div>
+        <div id="pubVideoFile" style="display:none;margin-top:10px;padding:10px 14px;background:var(--surface2);border-radius:8px;font-size:13px;display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span id="pubVideoName" style="font-weight:500"></span>
+            <span id="pubVideoSize" style="color:var(--muted)"></span>
+          </div>
+          <div style="margin-top:8px">
+            <label style="font-size:12px;color:var(--muted)">Target size</label>
+            <select id="pubVideoPreset" style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:13px;width:100%;margin-top:4px">
+              <option value="19">Shopify (19MB max)</option>
+              <option value="100">General web (100MB)</option>
+              <option value="500">Instagram / TikTok (500MB)</option>
+            </select>
+          </div>
+        </div>
+        <div class="action-bar" id="pubVideoBar" style="display:none;margin-top:10px">
+          <button class="btn btn-primary btn-sm" onclick="compressPubVideo()">⚡ Compress Video</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearPubVideo()">Clear</button>
+        </div>
+        <div id="pubVideoStatus" style="font-size:12px;color:var(--muted);margin-top:8px"></div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;padding:8px 12px;background:var(--surface2);border-radius:8px"><span style="color:var(--muted)">Shopify limit</span><span style="color:var(--accent);font-weight:600">20MB max</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;padding:8px 12px;background:var(--surface2);border-radius:8px"><span style="color:var(--muted)">Instagram Reels</span><span style="color:var(--accent);font-weight:600">650MB / 60s</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;padding:8px 12px;background:var(--surface2);border-radius:8px"><span style="color:var(--muted)">TikTok Ads</span><span style="color:var(--accent);font-weight:600">500MB max</span></div>
         </div>
       </div>
     </div>
@@ -271,6 +295,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
         <h2 class="section-title">Clean product shots,<br>zero effort</h2>
         <p class="section-desc">Amazon requires white backgrounds. Shopify product pages look sharper without clutter. Remove backgrounds automatically — works best on product photography, logos, and flat-lay shots.</p>
         <div class="price-tag"><span class="amt">$4</span><span class="per">USD / month</span></div>
+        <div class="cap-note" style="margin-bottom:18px">🆓 5 free removals/week · Unlimited bulk on paid plan</div>
         <ul class="feat-list">
           <li>Automatic AI background removal</li>
           <li>Replace with white, custom colour or transparent PNG</li>
@@ -282,15 +307,38 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
       <div class="demo-box">
         <div class="demo-icon">✂️</div>
         <div class="demo-title">Background Removal</div>
-        <div class="demo-sub">Subscribers only</div>
-        <div class="locked-box">
-          <div style="font-size:32px;margin-bottom:10px">🔒</div>
-          <div style="font-weight:600;margin-bottom:6px">Subscribers only</div>
-          <p style="color:var(--muted);font-size:13px;margin-bottom:18px">$4/month — bulk background removal for product images</p>
-          <button class="btn btn-primary btn-sm" onclick="openUpgradeModal('bgremove')">Unlock Background Removal</button>
+        <div class="demo-sub">Free: 5 removals/week. Subscribe for unlimited bulk.</div>
+        <div class="usage-wrap" id="bgUsageWrap">
+          <div class="usage-label"><span>Free weekly usage</span><span id="bgUsageText">0 / 5 this week</span></div>
+          <div class="usage-bar"><div class="usage-fill" id="bgUsageFill" style="width:0%"></div></div>
         </div>
-        <div style="margin-top:14px;padding:14px;background:var(--surface2);border-radius:8px;font-size:13px;color:var(--muted);line-height:1.6">
-          <strong style="color:var(--text)">Why it matters:</strong> Amazon penalises listings without white backgrounds. Removing backgrounds can increase click-through rate by up to 30% on marketplace listings.
+        <div class="drop-zone" id="bgDropZone" onclick="document.getElementById('pubBgIn').click()" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onBgDrop(event)">
+          <div style="font-size:26px;margin-bottom:6px">✂️</div>
+          <strong style="font-size:14px">Drop product image here</strong>
+          <p>PNG · JPG · WEBP</p>
+          <input type="file" id="pubBgIn" accept="image/*" style="display:none" onchange="handlePubBg(this.files)">
+        </div>
+        <div id="bgPreviewWrap" style="display:none;margin-top:12px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Original</div>
+              <img id="bgOrigImg" style="width:100%;border-radius:8px;border:1px solid var(--border)" alt="original">
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Result</div>
+              <div id="bgResultBox" style="width:100%;aspect-ratio:1;border-radius:8px;border:1px solid var(--border);background:repeating-conic-gradient(#333 0% 25%,#222 0% 50%) 0 0/16px 16px;display:flex;align-items:center;justify-content:center">
+                <span style="font-size:11px;color:var(--muted)">Processing...</span>
+              </div>
+            </div>
+          </div>
+          <div class="action-bar" style="justify-content:center">
+            <button class="btn btn-primary btn-sm" id="bgRemoveBtn" onclick="removeBgPublic()">✂️ Remove Background</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearBg()">Clear</button>
+          </div>
+        </div>
+        <div id="bgStatus" style="font-size:12px;color:var(--muted);margin-top:8px;text-align:center"></div>
+        <div style="margin-top:12px;padding:12px;background:var(--surface2);border-radius:8px;font-size:13px;color:var(--muted);line-height:1.6">
+          <strong style="color:var(--text)">Why it matters:</strong> Amazon requires white backgrounds. Clean product shots increase click-through rate by up to 30%.
         </div>
       </div>
     </div>
@@ -317,7 +365,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
           <div class="plan-price"><sup>$</sup>5<sub>/mo</sub></div>
           <div class="plan-desc">50 compressions/month · 500MB max</div>
           <ul class="plan-features">
-            <li>50 compressions/month</li><li>500MB max file size</li><li>Platform presets</li><li>MP4 · MOV · WEBM</li><li>100% browser-based</li>
+            <li>2 free compressions/day (no account needed)</li><li>Unlimited on paid plan</li><li>500MB max file size</li><li>Platform presets</li><li>MP4 · MOV · WEBM</li><li>100% browser-based</li>
             <li class="no">Image resizer</li><li class="no">Background removal</li>
           </ul>
           <button class="btn btn-ghost" style="width:100%;padding:11px" onclick="openUpgradeModal('video')">Get Started</button>
@@ -335,8 +383,8 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
         </div>
         <div class="plan">
           <div class="plan-name">All Features</div>
-          <div class="plan-price"><sup>$</sup>12<sub style="font-size:12px">.99/mo</sub></div>
-          <div class="plan-desc">Every tool. One price.</div>
+          <div class="plan-price"><sup>$</sup>17<sub style="font-size:12px">.99/mo</sub></div>
+          <div class="plan-desc">Every tool. One price. Best value.</div>
           <ul class="plan-features">
             <li>Unlimited image resizing</li><li>Video compression</li><li>Background removal</li><li>All platform presets</li><li>Bulk rename</li><li>Priority support</li>
           </ul>
@@ -572,7 +620,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
       <div class="uplan" onclick="selPlan('video',this)"><div><div class="uplan-name">Video Compressor</div><div class="uplan-desc">50 compressions/month · 500MB max</div></div><div class="uplan-price">$5</div></div>
       <div class="uplan" onclick="selPlan('bgremove',this)"><div><div class="uplan-name">Background Removal</div><div class="uplan-desc">Bulk AI background removal</div></div><div class="uplan-price">$4</div></div>
       <div class="uplan" onclick="selPlan('bundle2',this)"><div><div class="uplan-name">Image + Video Bundle</div><div class="uplan-desc">Save $1 vs buying separate</div></div><div class="uplan-price">$9</div></div>
-      <div class="uplan" onclick="selPlan('all',this)"><div><div class="uplan-name">⭐ All Features</div><div class="uplan-desc">Every tool — best value</div></div><div class="uplan-price">$12.99</div></div>
+      <div class="uplan" onclick="selPlan('all',this)"><div><div class="uplan-name">⭐ All Features</div><div class="uplan-desc">Every tool — best value</div></div><div class="uplan-price">$17.99</div></div>
     </div>
     <button class="btn btn-primary" style="width:100%;padding:13px;font-size:16px" id="checkoutBtn" onclick="goCheckout()" disabled>Continue to Payment</button>
     <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:10px">Powered by Stripe · Secure payment</p>
@@ -583,12 +631,15 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
 
 <script>
 // ══════════════════════════════════
-// CONFIG — credentials stored as base64, never shown in UI
+// CONFIG — no credentials stored in code
 // ══════════════════════════════════
-const _a = atob('aGVsbG9AZmx5aGlnaGRpZ2l0YWwuY29tLmF1');
-const _p = atob('RmxZSGlnaDIwMjYh'); // FlyHigh2026! — change via admin settings later
+const SUPABASE_URL  = 'https://ephfzaupozxgmtzecqwi.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_K_4mKjBenbsxO6d_hC5U3w_1rFUD3H2';
+const _supabase     = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-const FREE_LIMIT = 15;
+const FREE_LIMIT    = 15;   // image resizer per day
+const VIDEO_LIMIT   = 2;    // video compressions per day
+const BG_LIMIT      = 5;    // background removals per week
 let isAdmin = false;
 let tapCount = 0, tapTimer = null;
 let selectedPlan = null;
@@ -599,10 +650,24 @@ let savedKw = JSON.parse(localStorage.getItem('elk_kw') || '[]');
 // PAGE ROUTING
 // ══════════════════════════════════
 function showPage(name) {
+  if (name === 'admin' && !isAdmin) {
+    openModal('adminLoginModal');
+    document.getElementById('aEmail').value = '';
+    document.getElementById('aPass').value = '';
+    document.getElementById('aErr').style.display = 'none';
+    return;
+  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + name)?.classList.add('active');
   window.scrollTo(0, 0);
-  if (name === 'admin' && isAdmin) { loadAdminSettings(); loadSavedKw(); document.getElementById('statImages').textContent = localStorage.getItem('elk_imgs')||'0'; document.getElementById('statKeywords').textContent = savedKw.length; }
+  if (name === 'admin') {
+    sessionStorage.setItem('elk_page', 'admin');
+    loadAdminSettings(); loadSavedKw();
+    document.getElementById('statImages').textContent = localStorage.getItem('elk_imgs')||'0';
+    document.getElementById('statKeywords').textContent = savedKw.length;
+  } else {
+    sessionStorage.removeItem('elk_page');
+  }
 }
 function scrollToTop() { document.getElementById('page-home').classList.contains('active') ? window.scrollTo({top:0,behavior:'smooth'}) : showPage('home'); }
 function goTo(id) { showPage('home'); setTimeout(() => document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'}), 60); }
@@ -621,26 +686,66 @@ function handleAdminTap() {
     document.getElementById('aEmail').value = '';
     document.getElementById('aPass').value = '';
     document.getElementById('aErr').style.display = 'none';
+    // Focus email field after short delay
+    setTimeout(() => document.getElementById('aEmail').focus(), 200);
   }
 }
 
 // ══════════════════════════════════
 // AUTH
 // ══════════════════════════════════
-function doAdminLogin() {
+async function doAdminLogin() {
   const email = document.getElementById('aEmail').value.trim();
   const pass  = document.getElementById('aPass').value;
-  document.getElementById('aErr').style.display = 'none';
-  if (email === _a && pass === _p) {
+  const errEl = document.getElementById('aErr');
+  const btn   = document.querySelector('#adminLoginModal .btn-primary');
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  try {
+    const { data, error } = await _supabase.auth.signInWithPassword({ email, password: pass });
+    if (error || !data.user) {
+      errEl.style.display = 'block';
+      errEl.textContent = 'Incorrect credentials';
+      btn.disabled = false; btn.textContent = 'Sign In';
+      return;
+    }
+    // Verify this is the authorised admin email
+    const authorised = [atob('aGVsbG9AZmx5aGlnaGRpZ2l0YWwuY29tLmF1')];
+    if (!authorised.includes(data.user.email)) {
+      await _supabase.auth.signOut();
+      errEl.style.display = 'block';
+      errEl.textContent = 'Access denied';
+      btn.disabled = false; btn.textContent = 'Sign In';
+      return;
+    }
     isAdmin = true;
+    sessionStorage.setItem('elk_admin', '1');
     closeModal('adminLoginModal');
     showPage('admin');
     toast('Admin access granted ⚡', 'success');
-  } else {
-    document.getElementById('aErr').style.display = 'block';
+  } catch(e) {
+    errEl.style.display = 'block';
+    errEl.textContent = 'Connection error — try again';
+  }
+  btn.disabled = false; btn.textContent = 'Sign In';
+}
+async function logout() {
+  await _supabase.auth.signOut();
+  isAdmin = false;
+  sessionStorage.removeItem('elk_admin');
+  showPage('home');
+  toast('Logged out');
+}
+async function checkExistingSession() {
+  const { data } = await _supabase.auth.getSession();
+  if (data?.session?.user) {
+    const authorised = [atob('aGVsbG9AZmx5aGlnaGRpZ2l0YWwuY29tLmF1')];
+    if (authorised.includes(data.session.user.email)) {
+      isAdmin = true;
+      sessionStorage.setItem('elk_admin', '1');
+    }
   }
 }
-function logout() { isAdmin = false; showPage('home'); }
 
 // ══════════════════════════════════
 // MODALS
@@ -670,7 +775,7 @@ const PAYMENT_LINKS = {
   resizer:  'https://buy.stripe.com/6oU8wRcb81j7bbt7EUao802',
   video:    'https://buy.stripe.com/dRm00l7US4vja7p4sIao803',
   bgremove: 'https://buy.stripe.com/4gM7sNgro5znfrJ0csao804',
-  all:      'https://buy.stripe.com/dRmfZj5MKe5Ta7p1gwao805',
+  all:      'https://buy.stripe.com/cNibJ33ECd1P4N5gbqao807',
   bundle2:  'https://buy.stripe.com/00w9AVdfc8Lzcfxe3iao806',
 };
 function goCheckout() {
@@ -684,6 +789,17 @@ function goCheckout() {
 // ══════════════════════════════════
 function getUsage() { const t=new Date().toDateString(),s=JSON.parse(localStorage.getItem('elk_u')||'{}'); return s.date===t?s.count||0:0; }
 function addUsage(n) { const t=new Date().toDateString(),s=JSON.parse(localStorage.getItem('elk_u')||'{}'),c=(s.date===t?s.count||0:0)+n; localStorage.setItem('elk_u',JSON.stringify({date:t,count:c})); }
+
+// Video usage (daily)
+function getVideoUsage() { const t=new Date().toDateString(),s=JSON.parse(localStorage.getItem('elk_vu')||'{}'); return s.date===t?s.count||0:0; }
+function addVideoUsage(n) { const t=new Date().toDateString(),s=JSON.parse(localStorage.getItem('elk_vu')||'{}'),c=(s.date===t?s.count||0:0)+n; localStorage.setItem('elk_vu',JSON.stringify({date:t,count:c})); }
+function videoRemaining() { return Math.max(0, VIDEO_LIMIT - getVideoUsage()); }
+
+// Background removal usage (weekly)
+function getWeekKey() { const d=new Date(),day=d.getDay(),diff=d.getDate()-day+(day===0?-6:1); return new Date(d.setDate(diff)).toDateString(); }
+function getBgUsage() { const w=getWeekKey(),s=JSON.parse(localStorage.getItem('elk_bgu')||'{}'); return s.week===w?s.count||0:0; }
+function addBgUsage(n) { const w=getWeekKey(),s=JSON.parse(localStorage.getItem('elk_bgu')||'{}'),c=(s.week===w?s.count||0:0)+n; localStorage.setItem('elk_bgu',JSON.stringify({week:w,count:c})); }
+function bgRemaining() { return Math.max(0, BG_LIMIT - getBgUsage()); }
 function updateUsageBar() {
   const used=getUsage(), pct=Math.min(used/FREE_LIMIT*100,100);
   document.getElementById('usageFill').style.width=pct+'%';
@@ -730,6 +846,163 @@ async function processPub() {
   toast(`${pubFiles.length} images processed!`,'success');
 }
 function clearPub() { pubFiles=[]; document.getElementById('pubGrid').innerHTML=''; document.getElementById('pubActionBar').style.display='none'; document.getElementById('pubStatus').textContent=''; }
+
+// ── PUBLIC VIDEO COMPRESSOR (free tier) ──
+let pubVideoFile = null;
+function updateVideoUsageBar() {
+  const used=getVideoUsage(), pct=Math.min(used/VIDEO_LIMIT*100,100);
+  const fill=document.getElementById('videoUsageFill'), text=document.getElementById('videoUsageText');
+  if(fill) fill.style.width=pct+'%';
+  if(text) text.textContent=`${used} / ${VIDEO_LIMIT} today`;
+  if(fill) fill.style.background=pct>=100?'var(--danger)':'linear-gradient(90deg,var(--accent2),var(--accent))';
+}
+function handlePubVideo(files) {
+  if(!files.length) return;
+  if(videoRemaining()<=0) { toast('Free limit reached (2/day) — upgrade for unlimited!','error'); openUpgradeModal('video'); return; }
+  const file=files[0];
+  if(file.size>500*1024*1024) { toast('File too large — max 500MB for free tier','error'); return; }
+  pubVideoFile=file;
+  const nameEl=document.getElementById('pubVideoName'), sizeEl=document.getElementById('pubVideoSize');
+  const fileEl=document.getElementById('pubVideoFile'), barEl=document.getElementById('pubVideoBar');
+  if(nameEl) nameEl.textContent=file.name;
+  if(sizeEl) sizeEl.textContent=(file.size/1024/1024).toFixed(1)+' MB';
+  if(fileEl) fileEl.style.display='block';
+  if(barEl) barEl.style.display='flex';
+}
+async function compressPubVideo() {
+  if(!pubVideoFile) return;
+  if(videoRemaining()<=0) { toast('Daily limit reached — upgrade for unlimited!','error'); openUpgradeModal('video'); return; }
+  const st=document.getElementById('pubVideoStatus'), btn=document.querySelector('#pubVideoBar .btn-primary');
+  btn.disabled=true; btn.textContent='Compressing...';
+  st.textContent='Processing video in browser — this may take a moment...';
+  // Browser-native compression via MediaRecorder (no FFmpeg needed for basic compression)
+  try {
+    const targetMB=parseInt(document.getElementById('pubVideoPreset').value)||19;
+    const url=URL.createObjectURL(pubVideoFile);
+    const video=document.createElement('video');
+    video.src=url; video.muted=true;
+    await new Promise(r=>{video.onloadedmetadata=r;});
+    const canvas=document.createElement('canvas');
+    canvas.width=video.videoWidth; canvas.height=video.videoHeight;
+    const ctx=canvas.getContext('2d');
+    const stream=canvas.captureStream(24);
+    const audioCtx=new AudioContext();
+    // Calculate target bitrate from target MB and duration
+    const durationS=video.duration||30;
+    const targetBits=targetMB*8*1024*1024;
+    const bitsPerSec=Math.floor(targetBits/durationS);
+    const recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp8',videoBitsPerSecond:Math.min(bitsPerSec,8000000)});
+    const chunks=[];
+    recorder.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
+    recorder.start(100);
+    video.play();
+    video.ontimeupdate=()=>{ctx.drawImage(video,0,0);st.textContent=`Processing: ${Math.round((video.currentTime/video.duration)*100)}%...`;};
+    await new Promise(r=>{video.onended=()=>{recorder.stop();r();};});
+    await new Promise(r=>{recorder.onstop=r;});
+    URL.revokeObjectURL(url);
+    const blob=new Blob(chunks,{type:'video/webm'});
+    const outName=pubVideoFile.name.replace(/\.[^.]+$/,'')+'-compressed.webm';
+    dlBlob(blob,outName);
+    addVideoUsage(1); updateVideoUsageBar();
+    const saved=((pubVideoFile.size-blob.size)/pubVideoFile.size*100).toFixed(0);
+    st.textContent=`✓ Done! ${(blob.size/1024/1024).toFixed(1)}MB (saved ${saved}%) — downloading as WEBM`;
+    toast(`Video compressed — ${saved}% smaller!`,'success');
+  } catch(e) {
+    st.textContent='Compression failed — try a smaller file or different format';
+    toast('Compression error','error');
+    console.error(e);
+  }
+  btn.disabled=false; btn.textContent='⚡ Compress Video';
+}
+function clearPubVideo() {
+  pubVideoFile=null;
+  const fileEl=document.getElementById('pubVideoFile'), barEl=document.getElementById('pubVideoBar'), st=document.getElementById('pubVideoStatus');
+  if(fileEl) fileEl.style.display='none';
+  if(barEl) barEl.style.display='none';
+  if(st) st.textContent='';
+  document.getElementById('pubVideoIn').value='';
+}
+
+// ── PUBLIC BACKGROUND REMOVAL (free tier) ──
+let pubBgFile = null;
+function updateBgUsageBar() {
+  const used=getBgUsage(), pct=Math.min(used/BG_LIMIT*100,100);
+  const fill=document.getElementById('bgUsageFill'), text=document.getElementById('bgUsageText');
+  if(fill) fill.style.width=pct+'%';
+  if(text) text.textContent=`${used} / ${BG_LIMIT} this week`;
+  if(fill) fill.style.background=pct>=100?'var(--danger)':'linear-gradient(90deg,var(--accent2),var(--accent))';
+}
+function onBgDrop(e) { e.preventDefault(); e.currentTarget.classList.remove('drag'); handlePubBg(e.dataTransfer.files); }
+function handlePubBg(files) {
+  if(!files.length) return;
+  if(bgRemaining()<=0) { toast('Weekly limit reached (5/week) — upgrade for unlimited!','error'); openUpgradeModal('bgremove'); return; }
+  const file=files[0];
+  if(!file.type.startsWith('image/')) { toast('Please upload an image file','error'); return; }
+  pubBgFile=file;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    document.getElementById('bgOrigImg').src=e.target.result;
+    document.getElementById('bgResultBox').innerHTML='<span style="font-size:11px;color:var(--muted)">Click Remove Background</span>';
+    document.getElementById('bgPreviewWrap').style.display='block';
+    document.getElementById('bgDropZone').style.display='none';
+  };
+  reader.readAsDataURL(file);
+}
+async function removeBgPublic() {
+  if(!pubBgFile) return;
+  if(bgRemaining()<=0) { toast('Weekly limit reached — upgrade for unlimited!','error'); openUpgradeModal('bgremove'); return; }
+  const btn=document.getElementById('bgRemoveBtn'), st=document.getElementById('bgStatus');
+  const box=document.getElementById('bgResultBox');
+  btn.disabled=true; btn.textContent='Removing...';
+  st.textContent=''; box.innerHTML='<span style="font-size:11px;color:var(--muted)">Processing...</span>';
+  const bgSettings=JSON.parse(localStorage.getItem('elk_bgk')||'{}');
+  if(!bgSettings.key) {
+    // Show result as original with message — key not set yet
+    const reader=new FileReader();
+    reader.onload=e=>{
+      box.innerHTML=`<img src="${e.target.result}" style="width:100%;border-radius:8px" alt="result">`;
+      st.innerHTML='<span style="color:var(--accent)">ℹ️ remove.bg API key not configured yet — contact support or upgrade for full access</span>';
+    };
+    reader.readAsDataURL(pubBgFile);
+    btn.disabled=false; btn.textContent='✂️ Remove Background';
+    return;
+  }
+  try {
+    const fd=new FormData();
+    fd.append('image_file',pubBgFile);
+    fd.append('size','auto');
+    const res=await fetch('https://api.remove.bg/v1.0/removebg',{method:'POST',headers:{'X-Api-Key':bgSettings.key},body:fd});
+    if(res.ok) {
+      const blob=await res.blob();
+      const url=URL.createObjectURL(blob);
+      box.innerHTML=`<img src="${url}" style="width:100%;border-radius:8px" alt="result">`;
+      // Add download button
+      st.innerHTML='';
+      const a=document.createElement('a');
+      a.href=url; a.download=pubBgFile.name.replace(/\.[^.]+$/,'')+'-nobg.png';
+      a.className='btn btn-primary btn-sm'; a.textContent='⬇️ Download';
+      a.style.cssText='text-decoration:none;display:inline-block;margin-top:8px';
+      st.appendChild(a);
+      addBgUsage(1); updateBgUsageBar();
+      toast('Background removed!','success');
+    } else {
+      box.innerHTML='<span style="font-size:11px;color:var(--danger)">Error — try again</span>';
+      st.textContent='Removal failed — check API key in admin settings';
+    }
+  } catch(e) {
+    box.innerHTML='<span style="font-size:11px;color:var(--danger)">Connection error</span>';
+    st.textContent='Error connecting to background removal service';
+  }
+  btn.disabled=false; btn.textContent='✂️ Remove Background';
+}
+function clearBg() {
+  pubBgFile=null;
+  document.getElementById('bgPreviewWrap').style.display='none';
+  document.getElementById('bgDropZone').style.display='block';
+  document.getElementById('bgStatus').textContent='';
+  document.getElementById('pubBgIn').value='';
+  updateBgUsageBar();
+}
 
 // ══════════════════════════════════
 // ADMIN IMAGE TOOL
@@ -971,7 +1244,16 @@ let toastT;
 function toast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast show '+type;clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),3500);}
 
 // INIT
-document.addEventListener('DOMContentLoaded',()=>updateUsageBar());
+document.addEventListener('DOMContentLoaded', async () => {
+  updateUsageBar();
+  updateVideoUsageBar();
+  updateBgUsageBar();
+  await checkExistingSession();
+  if (isAdmin && sessionStorage.getItem('elk_admin')) {
+    const page = sessionStorage.getItem('elk_page');
+    if (page === 'admin') showPage('admin');
+  }
+});
 </script>
 </body>
 </html>
