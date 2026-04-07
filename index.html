@@ -12,9 +12,9 @@
 :root{--bg:#08080e;--surface:#111118;--surface2:#18181f;--border:#252530;--accent:#f0c14b;--accent2:#7c6af7;--text:#eeeef5;--muted:#64647a;--danger:#ff5252;--success:#2dca72;--radius:12px;}
 *{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-nav{display:flex;align-items:center;justify-content:space-between;padding:16px 48px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;background:rgba(8,8,14,.95);backdrop-filter:blur(14px);}
-.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:21px;letter-spacing:-.5px;cursor:pointer;}
-.logo span{color:var(--accent);}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 48px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;background:rgba(8,8,14,.95);backdrop-filter:blur(14px);-webkit-font-smoothing:antialiased;}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.8px;cursor:pointer;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+.logo span{color:var(--accent);-webkit-font-smoothing:antialiased;}
 .nav-links{display:flex;gap:2px;}
 .nav-link{padding:8px 14px;border-radius:8px;background:none;border:none;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;transition:color .2s;}
 .nav-link:hover{color:var(--text);}
@@ -154,7 +154,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
 
 <!-- NAV -->
 <nav id="siteNav">
-  <div class="logo" onclick="scrollToTop()">Ecom<span>LaunchKit</span></div>
+  <div class="logo" onclick="scrollToTop()"><span style="font-weight:700;color:var(--text)">Ecom</span><span style="font-weight:700;color:var(--accent)">LaunchKit</span></div>
   <div class="nav-links">
     <button class="nav-link" onclick="goTo('s-resizer')">Image Resizer</button>
     <button class="nav-link" onclick="goTo('s-video')">Video Tools</button>
