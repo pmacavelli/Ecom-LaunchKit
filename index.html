@@ -666,12 +666,17 @@ function selPlan(plan, el) {
   el.classList.add('sel'); selectedPlan = plan;
   document.getElementById('checkoutBtn').disabled = false;
 }
+const PAYMENT_LINKS = {
+  resizer:  'https://buy.stripe.com/6oU8wRcb81j7bbt7EUao802',
+  video:    'https://buy.stripe.com/dRm00l7US4vja7p4sIao803',
+  bgremove: 'https://buy.stripe.com/4gM7sNgro5znfrJ0csao804',
+  all:      'https://buy.stripe.com/dRmfZj5MKe5Ta7p1gwao805',
+  bundle2:  'https://buy.stripe.com/00w9AVdfc8Lzcfxe3iao806',
+};
 function goCheckout() {
-  const ss = JSON.parse(localStorage.getItem('elk_stripe')||'{}');
-  const pm = {resizer:ss.pR,video:ss.pV,bgremove:ss.pBg,bundle2:ss.pB2,all:ss.pA};
-  const priceId = pm[selectedPlan];
-  if (!priceId || !ss.pk) { toast('Payment not yet configured — coming soon!','error'); closeModal('upgradeModal'); return; }
-  Stripe(ss.pk).redirectToCheckout({lineItems:[{price:priceId,quantity:1}],mode:'subscription',successUrl:location.href+'?success=1',cancelUrl:location.href});
+  if (!selectedPlan || !PAYMENT_LINKS[selectedPlan]) { toast('Please select a plan first', 'error'); return; }
+  window.open(PAYMENT_LINKS[selectedPlan], '_blank');
+  closeModal('upgradeModal');
 }
 
 // ══════════════════════════════════
