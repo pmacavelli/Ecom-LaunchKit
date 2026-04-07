@@ -636,6 +636,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
 const SUPABASE_URL  = 'https://ephfzaupozxgmtzecqwi.supabase.co';
 const SUPABASE_ANON = 'sb_publishable_K_4mKjBenbsxO6d_hC5U3w_1rFUD3H2';
 const _supabase     = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+// BG API key is stored securely in Vercel environment variables — never in this file
 
 const FREE_LIMIT    = 15;   // image resizer per day
 const VIDEO_LIMIT   = 2;    // video compressions per day
@@ -955,23 +956,11 @@ async function removeBgPublic() {
   const box=document.getElementById('bgResultBox');
   btn.disabled=true; btn.textContent='Removing...';
   st.textContent=''; box.innerHTML='<span style="font-size:11px;color:var(--muted)">Processing...</span>';
-  const bgSettings=JSON.parse(localStorage.getItem('elk_bgk')||'{}');
-  if(!bgSettings.key) {
-    // Show result as original with message — key not set yet
-    const reader=new FileReader();
-    reader.onload=e=>{
-      box.innerHTML=`<img src="${e.target.result}" style="width:100%;border-radius:8px" alt="result">`;
-      st.innerHTML='<span style="color:var(--accent)">ℹ️ remove.bg API key not configured yet — contact support or upgrade for full access</span>';
-    };
-    reader.readAsDataURL(pubBgFile);
-    btn.disabled=false; btn.textContent='✂️ Remove Background';
-    return;
-  }
   try {
     const fd=new FormData();
     fd.append('image_file',pubBgFile);
     fd.append('size','auto');
-    const res=await fetch('https://api.remove.bg/v1.0/removebg',{method:'POST',headers:{'X-Api-Key':bgSettings.key},body:fd});
+    const res=await fetch('/api/remove-bg',{method:'POST',body:fd});
     if(res.ok) {
       const blob=await res.blob();
       const url=URL.createObjectURL(blob);
@@ -1122,9 +1111,13 @@ async function resizeImg(file,width,height,quality,format,mode) {
 // BACKGROUND REMOVAL
 // ══════════════════════════════════
 async function removeBg(blob) {
-  const s=JSON.parse(localStorage.getItem('elk_bgk')||'{}');
-  if(!s.key) return null;
-  try{const fd=new FormData();fd.append('image_file',blob);fd.append('size','auto');const r=await fetch('https://api.remove.bg/v1.0/removebg',{method:'POST',headers:{'X-Api-Key':s.key},body:fd});if(r.ok)return await r.blob();}catch(e){}
+  try{
+    const fd=new FormData();
+    fd.append('image_file',blob);
+    fd.append('size','auto');
+    const r=await fetch('/api/remove-bg',{method:'POST',body:fd});
+    if(r.ok) return await r.blob();
+  }catch(e){ console.error('BG removal error:',e); }
   return null;
 }
 
