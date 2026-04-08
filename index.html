@@ -641,9 +641,9 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
   <footer>
     <div class="footer-copy">© 2025 Ecom LaunchKit · <a href="https://flyhighdigital.com.au" target="_blank" style="color:var(--muted);text-decoration:none">Fly High Digital</a></div>
     <div class="footer-links">
-      <a class="footer-link" href="#">Privacy</a>
-      <a class="footer-link" href="#">Terms</a>
-      <a class="footer-link" href="#">Support</a>
+      <a class="footer-link" href="#" onclick="openLegalPage('privacy');return false">Privacy</a>
+      <a class="footer-link" href="#" onclick="openLegalPage('terms');return false">Terms</a>
+      <a class="footer-link" href="#" onclick="openLegalPage('support');return false">Support</a>
       <!-- 5 clicks on this invisible dot opens admin login — not visible to users -->
       <button class="admin-trigger" id="adminTrigger" onclick="handleAdminTap()" tabindex="-1" aria-hidden="true">·</button>
     </div>
@@ -917,6 +917,14 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
     </div>
     <button class="btn btn-primary" style="width:100%;padding:13px;font-size:16px" id="checkoutBtn" onclick="goCheckout()" disabled>Continue to Payment</button>
     <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:10px">Powered by Stripe · Secure payment</p>
+  </div>
+</div>
+
+<!-- LEGAL MODAL -->
+<div class="modal-overlay" id="legalModal" style="align-items:flex-start;padding:40px 24px;overflow-y:auto">
+  <div class="modal" style="max-width:720px;width:100%;max-height:none">
+    <button class="modal-close" onclick="closeModal('legalModal')" style="position:sticky;top:0;float:right;z-index:10">×</button>
+    <div id="legalContent"></div>
   </div>
 </div>
 
@@ -1681,6 +1689,128 @@ function downloadFeedMapping() {
   const platform = document.getElementById('feedPlatform').value;
   dlBlob(new Blob([text],{type:'text/plain'}), `${platform}-column-mapping.txt`);
   toast('Mapping downloaded!','success');
+}
+
+// ══════════════════════════════════
+// LEGAL PAGES
+// ══════════════════════════════════
+const LEGAL_CONTENT = {
+  privacy: `
+    <h2 style="font-family:'Syne',sans-serif;font-size:24px;font-weight:700;margin-bottom:6px">Privacy Policy</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:28px">Last updated: April 2025 · Ecom LaunchKit is operated by Fly High Digital (ABN available on request), Perth, Western Australia.</p>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;margin-top:24px">1. Information we collect</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:12px">Ecom LaunchKit collects minimal personal information. When you create an account or subscribe to a paid plan, we collect your email address and payment information (processed securely by Stripe — we never store your card details). We also collect basic usage data such as the number of images processed and tools used, which is stored locally in your browser and used only to enforce free tier limits.</p>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:12px">Images and files you upload for processing are handled entirely within your browser and are never uploaded to our servers, with the exception of background removal requests which are sent securely to remove.bg for processing and immediately discarded.</p>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;margin-top:24px">2. How we use your information</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:12px">We use your email address to manage your subscription, send account-related communications, and provide support. We do not sell, rent or share your personal information with third parties for marketing purposes. We do not display advertising based on your personal data.</p>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;margin-top:24px">3. Third-party services</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:12px">We use the following third-party services to operate Ecom LaunchKit:</p>
+    <ul style="color:var(--muted);font-size:14px;line-height:1.8;margin-bottom:12px;padding-left:20px">
+      <li><strong style="color:var(--text)">Stripe</strong> — payment processing. Subject to Stripe's privacy policy.</li>
+      <li><strong style="color:var(--text)">Supabase</strong> — account authentication and data storage.</li>
+      <li><strong style="color:var(--text)">remove.bg</strong> — AI background removal for images you choose to process.</li>
+      <li><strong style="color:var(--text)">Vercel</strong> — website hosting and infrastructure.</li>
+      <li><strong style="color:var(--text)">Anthropic Claude API</strong> — AI-powered content tools including data cleaning, attribute extraction and SEO generation.</li>
+    </ul>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;margin-top:24px">4. Cookies and local storage</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:12px">We use browser local storage to remember your free tier usage limits and user preferences. We do not use tracking cookies or third-party advertising cookies. Authentication sessions are managed securely via Supabase.</p>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;margin-top:24px">5. Data retention and deletion</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:12px">You may request deletion of your account and associated data at any time by emailing hello@flyhighdigital.com.au. We will process your request within 30 days in accordance with the Australian Privacy Act 1988.</p>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;margin-top:24px">6. Your rights</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:12px">Under the Australian Privacy Act, you have the right to access, correct or request deletion of your personal information. To exercise these rights, contact us at hello@flyhighdigital.com.au.</p>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;margin-top:24px">7. Contact</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7">For privacy enquiries: <a href="mailto:hello@flyhighdigital.com.au" style="color:var(--accent)">hello@flyhighdigital.com.au</a></p>
+  `,
+
+  terms: `
+    <h2 style="font-family:'Syne',sans-serif;font-size:24px;font-weight:700;margin-bottom:6px">Terms of Service</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:28px">Last updated: April 2025 · By using Ecom LaunchKit you agree to these terms. Ecom LaunchKit is operated by Fly High Digital, Perth, Western Australia.</p>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;margin-top:24px">1. Acceptance of terms</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:12px">By accessing or using Ecom LaunchKit you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree to these terms, please do not use the service.</p>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;margin-top:24px">2. Description of service</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:12px">Ecom LaunchKit provides browser-based tools for ecommerce sellers including image resizing, video compression, AI background removal, and AI-powered content tools. A free tier is available with daily usage limits. Paid subscription plans unlock unlimited or expanded usage.</p>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;margin-top:24px">3. Subscriptions and billing</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:12px">Paid plans are billed monthly in USD via Stripe. Subscriptions renew automatically until cancelled. You may cancel at any time from your Stripe billing portal. Refunds are assessed on a case-by-case basis — contact us within 7 days of a charge if you believe a refund is warranted.</p>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;margin-top:24px">4. Acceptable use</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:12px">You agree not to use Ecom LaunchKit to process content that is illegal, defamatory, infringing of third-party intellectual property rights, or otherwise harmful. You are solely responsible for the content you upload and process using our tools.</p>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;margin-top:24px">5. Intellectual property</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:12px">All content, design, code and branding of Ecom LaunchKit is owned by Fly High Digital. You retain full ownership of any content you upload or create using our tools. We claim no rights over your images, videos or generated copy.</p>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;margin-top:24px">6. Limitation of liability</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:12px">Ecom LaunchKit is provided on an "as is" basis. We make no warranties regarding uptime, accuracy or fitness for a particular purpose. To the maximum extent permitted by Australian law, our total liability to you for any claim shall not exceed the amount you paid us in the 30 days preceding the claim.</p>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;margin-top:24px">7. Changes to terms</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:12px">We may update these terms from time to time. Continued use of the service after changes constitutes acceptance of the new terms. We will notify active subscribers of material changes via email.</p>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;margin-top:24px">8. Governing law</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7">These terms are governed by the laws of Western Australia, Australia. Any disputes shall be subject to the exclusive jurisdiction of the courts of Western Australia.</p>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;margin-top:24px">9. Contact</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7">For terms enquiries: <a href="mailto:hello@flyhighdigital.com.au" style="color:var(--accent)">hello@flyhighdigital.com.au</a></p>
+  `,
+
+  support: `
+    <h2 style="font-family:'Syne',sans-serif;font-size:24px;font-weight:700;margin-bottom:6px">Support</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:28px">We're here to help. Ecom LaunchKit is built and supported by Fly High Digital, Perth, Western Australia.</p>
+
+    <div style="background:rgba(240,193,75,.08);border:1px solid rgba(240,193,75,.2);border-radius:12px;padding:24px;margin-bottom:28px;text-align:center">
+      <div style="font-size:28px;margin-bottom:10px">📧</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:6px">Email Support</div>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:14px">For all enquiries, billing issues, account problems or feedback — email us directly. We aim to respond within 1 business day.</p>
+      <a href="mailto:hello@flyhighdigital.com.au" style="display:inline-block;padding:10px 24px;background:var(--accent);color:#000;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none">hello@flyhighdigital.com.au</a>
+    </div>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px">Common questions</h3>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="background:var(--surface2);border-radius:10px;padding:16px 18px">
+        <div style="font-weight:600;font-size:14px;margin-bottom:6px">How do I cancel my subscription?</div>
+        <p style="color:var(--muted);font-size:13px;line-height:1.6">You can cancel anytime through your Stripe billing portal. Email us at hello@flyhighdigital.com.au and we'll send you the direct cancellation link. Your access continues until the end of your current billing period.</p>
+      </div>
+      <div style="background:var(--surface2);border-radius:10px;padding:16px 18px">
+        <div style="font-weight:600;font-size:14px;margin-bottom:6px">My images aren't downloading — what do I do?</div>
+        <p style="color:var(--muted);font-size:13px;line-height:1.6">Try a hard refresh (Ctrl+Shift+R or Cmd+Shift+R) and upload your images again. Make sure your browser allows downloads from ecomlaunchkit.com.au. If the issue persists, email us with your browser and operating system details.</p>
+      </div>
+      <div style="background:var(--surface2);border-radius:10px;padding:16px 18px">
+        <div style="font-weight:600;font-size:14px;margin-bottom:6px">Background removal isn't working</div>
+        <p style="color:var(--muted);font-size:13px;line-height:1.6">Background removal uses the remove.bg service. It works best on product photos with a clear subject against a simple background. Very complex images may not process cleanly. For persistent issues email us.</p>
+      </div>
+      <div style="background:var(--surface2);border-radius:10px;padding:16px 18px">
+        <div style="font-weight:600;font-size:14px;margin-bottom:6px">I've hit my free tier limit — how do I get more?</div>
+        <p style="color:var(--muted);font-size:13px;line-height:1.6">Free limits reset daily (image resizer and video compressor) or weekly (background removal). To get unlimited access, upgrade to any paid plan using the Get Access button.</p>
+      </div>
+      <div style="background:var(--surface2);border-radius:10px;padding:16px 18px">
+        <div style="font-weight:600;font-size:14px;margin-bottom:6px">I was charged but can't access my plan</div>
+        <p style="color:var(--muted);font-size:13px;line-height:1.6">Email hello@flyhighdigital.com.au immediately with your receipt and we'll resolve it within 24 hours.</p>
+      </div>
+      <div style="background:var(--surface2);border-radius:10px;padding:16px 18px">
+        <div style="font-weight:600;font-size:14px;margin-bottom:6px">Can I request a refund?</div>
+        <p style="color:var(--muted);font-size:13px;line-height:1.6">Refunds are assessed on a case-by-case basis. Contact us within 7 days of a charge at hello@flyhighdigital.com.au and we'll do our best to help.</p>
+      </div>
+    </div>
+
+    <div style="margin-top:28px;padding:16px;background:var(--surface2);border-radius:10px;text-align:center">
+      <p style="color:var(--muted);font-size:13px">Support hours: Monday–Friday, 9am–5pm AWST (Perth, Western Australia)</p>
+    </div>
+  `
+};
+
+function openLegalPage(page) {
+  document.getElementById('legalContent').innerHTML = LEGAL_CONTENT[page] || '';
+  openModal('legalModal');
+  document.getElementById('legalModal').scrollTop = 0;
 }
 
 // ══════════════════════════════════
