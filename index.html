@@ -72,7 +72,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 4
 .plan.featured{border-color:var(--accent);}
 .plan-star{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;padding:3px 14px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
 .plan-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px;}
-.plan-price{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;line-height:1;margin-bottom:4px;}
+.plan-price{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1;margin-bottom:4px;color:var(--text);}
 .plan-price sup{font-size:18px;font-weight:600;}.plan-price sub{font-size:14px;font-weight:400;color:var(--muted);}
 .plan-desc{color:var(--muted);font-size:13px;margin-bottom:20px;min-height:36px;}
 .plan-features{list-style:none;margin-bottom:24px;display:flex;flex-direction:column;gap:9px;}
@@ -188,7 +188,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
         <div class="section-label">Tool 01 — Image Resizer</div>
         <h2 class="section-title">Perfect product images,<br>every platform</h2>
         <p class="section-desc">Upload any image — PNG, WEBP, GIF — and resize, compress and convert to JPEG instantly. Ten platform presets for Shopify, Amazon, eBay, Etsy and more. Bulk upload and download as a single ZIP.</p>
-        <div class="price-tag"><span class="amt">$6.99</span><span class="per">USD / month — unlimited</span></div>
+        <div class="price-tag"><span class="amt" style="font-size:32px">$6.99</span><span class="per">USD / month — unlimited</span></div>
         <ul class="feat-list">
           <li>10 platform presets (Shopify, Amazon, eBay, Etsy...)</li>
           <li>Bulk upload & single ZIP download</li>
@@ -235,7 +235,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
         <div class="section-label">Tool 02 — Video Compressor</div>
         <h2 class="section-title">Smaller videos,<br>faster stores</h2>
         <p class="section-desc">Compress and convert product videos for any platform — Shopify's 20MB limit, Instagram Reels, TikTok Ads and Google. Runs in your browser, no account required to try. 2 free compressions per day, unlimited on paid plan.</p>
-        <div class="price-tag"><span class="amt">$9.99</span><span class="per">USD / month</span></div>
+        <div class="price-tag"><span class="amt" style="font-size:32px">$9.99</span><span class="per">USD / month</span></div>
         <div class="cap-note">🆓 2 free/day · 📦 500MB max · Unlimited on paid plan</div>
         <ul class="feat-list">
           <li>Compress MP4, MOV, WEBM in browser</li>
@@ -374,7 +374,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
         <div class="section-label">Content Tools Bundle — AI Powered</div>
         <h2 class="section-title">Clean data, sharp copy,<br>ready to sell</h2>
         <p class="section-desc">Three AI-powered tools in one bundle that save hours of manual work every week. Clean messy supplier data, extract product attributes automatically, and map supplier feeds to your store format — all for one price.</p>
-        <div class="price-tag"><span class="amt">$29.99</span><span class="per">USD / month</span></div>
+        <div class="price-tag"><span class="amt" style="font-size:32px">$29.99</span><span class="per">USD / month</span></div>
         <ul class="feat-list">
           <li>Bulk product data cleaner & SEO optimizer</li>
           <li>AI product attribute extractor</li>
@@ -495,7 +495,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
       <div class="plans-grid">
         <div class="plan">
           <div class="plan-name">Image Resizer</div>
-          <div class="plan-price"><sup>$</sup>6<sub>.99/mo</sub></div>
+          <div class="plan-price">$6.99<span style="font-size:16px;font-weight:400;color:var(--muted)">/mo</span></div>
           <div class="plan-desc">Unlimited image resizing & conversion</div>
           <ul class="plan-features">
             <li>Unlimited images</li><li>10 platform presets</li><li>Bulk ZIP download</li><li>JPEG / WEBP / PNG output</li>
@@ -505,7 +505,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
         </div>
         <div class="plan">
           <div class="plan-name">Video Compressor</div>
-          <div class="plan-price"><sup>$</sup>9<sub>.99/mo</sub></div>
+          <div class="plan-price">$9.99<span style="font-size:16px;font-weight:400;color:var(--muted)">/mo</span></div>
           <div class="plan-desc">50 compressions/month · 500MB max</div>
           <ul class="plan-features">
             <li>2 free compressions/day (no account needed)</li><li>Unlimited on paid plan</li><li>500MB max file size</li><li>Platform presets</li><li>MP4 · MOV · WEBM</li><li>100% browser-based</li>
@@ -516,7 +516,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
         <div class="plan featured">
           <div class="plan-star">Best Value</div>
           <div class="plan-name">Image + Video</div>
-          <div class="plan-price"><sup>$</sup>14<sub>.99/mo</sub></div>
+          <div class="plan-price">$14.99<span style="font-size:16px;font-weight:400;color:var(--muted)">/mo</span></div>
           <div class="plan-desc">Save $5/month vs buying separate. Upgrade for background removal & content tools.</div>
           <ul class="plan-features">
             <li>Everything in Image Resizer</li><li>Everything in Video Compressor</li>
@@ -526,7 +526,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
         </div>
         <div class="plan">
           <div class="plan-name">Image, Video &amp; Background Removal</div>
-          <div class="plan-price"><sup>$</sup>17<sub style="font-size:12px">.99/mo</sub></div>
+          <div class="plan-price">$19.99<span style="font-size:16px;font-weight:400;color:var(--muted)">/mo</span></div>
           <div class="plan-desc">Image resizing, video compression &amp; AI background removal in one plan.</div>
           <ul class="plan-features">
             <li>Unlimited image resizing</li><li>Video compression</li><li style="color:var(--accent)">✦ Background removal (exclusive)</li><li>All platform presets</li><li>Bulk ZIP download</li>
@@ -538,7 +538,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
       <div style="grid-column:1/-1;height:1px;background:var(--border);margin:8px 0"></div>
       <div class="plan" style="grid-column:span 2">
         <div class="plan-name">Content Tools Bundle</div>
-        <div class="plan-price"><sup>$</sup>29<sub>.99/mo</sub></div>
+        <div class="plan-price">$29.99<span style="font-size:16px;font-weight:400;color:var(--muted)">/mo</span></div>
         <div class="plan-desc">3 AI tools included — sold as a bundle only</div>
         <ul class="plan-features">
           <li>🧹 Bulk product data cleaner & optimizer</li>
@@ -553,7 +553,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
       <div class="plan featured" style="grid-column:span 2">
         <div class="plan-star">🏆 Everything</div>
         <div class="plan-name">Everything Bundle</div>
-        <div class="plan-price"><sup>$</sup>39<sub>.99/mo</sub></div>
+        <div class="plan-price">$39.99<span style="font-size:16px;font-weight:400;color:var(--muted)">/mo</span></div>
         <div class="plan-desc">Every tool on the platform. One price.</div>
         <ul class="plan-features">
           <li>Unlimited image resizing</li>
