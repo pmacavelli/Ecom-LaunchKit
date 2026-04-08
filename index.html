@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ecom LaunchKit — Tools for Online Sellers</title>
 <meta name="description" content="Image resizer, video compressor, background removal and more — built for ecommerce sellers.">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 <script src="https://js.stripe.com/v3/"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -599,7 +605,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
             <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)"><span style="color:var(--success)">✓</span> Works perfectly with Ecom LaunchKit</div>
             <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)"><span style="color:var(--success)">✓</span> Built-in SEO, payments & shipping</div>
           </div>
-          <a href="YOUR_SHOPIFY_AFFILIATE_LINK" target="_blank" rel="noopener" style="display:block;text-align:center;padding:12px;background:rgba(150,191,113,.15);border:1px solid rgba(150,191,113,.4);border-radius:10px;color:#95bf47;font-weight:700;font-size:14px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(150,191,113,.25)'" onmouseout="this.style.background='rgba(150,191,113,.15)'">
+          <a href="#" id="shopifyAffLink" target="_blank" rel="noopener" style="display:block;text-align:center;padding:12px;background:rgba(150,191,113,.15);border:1px solid rgba(150,191,113,.4);border-radius:10px;color:#95bf47;font-weight:700;font-size:14px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(150,191,113,.25)'" onmouseout="this.style.background='rgba(150,191,113,.15)'">
             Start Free Trial →
           </a>
           <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:10px">Affiliate link — we may earn a commission</p>
@@ -621,7 +627,7 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
             <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)"><span style="color:var(--success)">✓</span> Full ownership of your store</div>
             <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)"><span style="color:var(--success)">✓</span> Thousands of plugins & themes</div>
           </div>
-          <a href="YOUR_WORDPRESS_AFFILIATE_LINK" target="_blank" rel="noopener" style="display:block;text-align:center;padding:12px;background:rgba(33,117,186,.15);border:1px solid rgba(33,117,186,.4);border-radius:10px;color:#2175ba;font-weight:700;font-size:14px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(33,117,186,.25)'" onmouseout="this.style.background='rgba(33,117,186,.15)'">
+          <a href="#" id="wordpressAffLink" target="_blank" rel="noopener" style="display:block;text-align:center;padding:12px;background:rgba(33,117,186,.15);border:1px solid rgba(33,117,186,.4);border-radius:10px;color:#2175ba;font-weight:700;font-size:14px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(33,117,186,.25)'" onmouseout="this.style.background='rgba(33,117,186,.15)'">
             Get Started with WordPress →
           </a>
           <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:10px">Affiliate link — we may earn a commission</p>
@@ -812,6 +818,56 @@ footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;align-i
       <h3>📢 Google AdSense</h3>
       <div class="field" style="max-width:380px"><label>Publisher ID</label><input type="text" id="adsId" placeholder="pub-XXXXXXXXXXXXXXXX"></div>
       <button class="btn btn-primary" style="margin-top:12px" onclick="saveAds()">Activate</button>
+    </div>
+
+    <!-- AFFILIATE LINKS -->
+    <div class="card">
+      <h3>🔗 Affiliate Links</h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:20px">These links appear in the affiliate section above the footer. Paste your unique affiliate URLs below — changes apply instantly when saved.</p>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:var(--surface2);border-radius:10px;padding:18px;border:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+            <div style="width:36px;height:36px;background:rgba(150,191,113,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px">🛒</div>
+            <div>
+              <div style="font-weight:600;font-size:14px">Shopify Affiliate</div>
+              <div style="font-size:12px;color:var(--muted)">~$150 USD per new merchant · shopify.com/affiliates</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Your Shopify Affiliate URL</label>
+            <input type="text" id="affShopify" placeholder="https://shopify.com/your-affiliate-link">
+          </div>
+        </div>
+        <div style="background:var(--surface2);border-radius:10px;padding:18px;border:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+            <div style="width:36px;height:36px;background:rgba(33,117,186,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px">🌐</div>
+            <div>
+              <div style="font-weight:600;font-size:14px">WordPress / WooCommerce Affiliate</div>
+              <div style="font-size:12px;color:var(--muted)">$65–200 per signup · bluehost.com/affiliates or siteground.com</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Your WordPress / Hosting Affiliate URL</label>
+            <input type="text" id="affWordpress" placeholder="https://bluehost.com/your-affiliate-link">
+          </div>
+        </div>
+        <div style="background:var(--surface2);border-radius:10px;padding:18px;border:1px solid var(--border)" id="affExtra1Wrap">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div style="font-weight:600;font-size:14px">➕ Additional Affiliate Partner</div>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('affExtra1Fields').style.display='block';this.style.display='none'">Add</button>
+          </div>
+          <div id="affExtra1Fields" style="display:none">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div class="field"><label>Partner Name</label><input type="text" id="affExtra1Name" placeholder="e.g. Squarespace"></div>
+              <div class="field"><label>Affiliate URL</label><input type="text" id="affExtra1Url" placeholder="https://..."></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;margin-top:16px">
+        <button class="btn btn-primary" onclick="saveAffiliateLinks()">Save Affiliate Links</button>
+        <span id="affStatus" style="font-size:13px;color:var(--muted)"></span>
+      </div>
     </div>
 
     <!-- AFFILIATE -->
@@ -1475,6 +1531,7 @@ function loadAdminSettings(){
   if(sb.k) document.getElementById('sbK').value=sb.k;
   if(bg.key) document.getElementById('bgK').value=bg.key;
   if(ad) document.getElementById('adsId').value=ad;
+  loadAffiliateLinks();
 }
 
 // ══════════════════════════════════
@@ -1626,11 +1683,66 @@ function downloadFeedMapping() {
   toast('Mapping downloaded!','success');
 }
 
+// ══════════════════════════════════
+// AFFILIATE LINKS
+// ══════════════════════════════════
+function saveAffiliateLinks() {
+  const shopify   = document.getElementById('affShopify').value.trim();
+  const wordpress = document.getElementById('affWordpress').value.trim();
+  const extra1name= document.getElementById('affExtra1Name')?.value.trim()||'';
+  const extra1url = document.getElementById('affExtra1Url')?.value.trim()||'';
+  const data = { shopify, wordpress, extra1name, extra1url };
+  localStorage.setItem('elk_affiliates', JSON.stringify(data));
+  applyAffiliateLinks(data);
+  document.getElementById('affStatus').textContent = '✓ Saved and live on site';
+  setTimeout(() => document.getElementById('affStatus').textContent = '', 3000);
+  toast('Affiliate links saved and applied!', 'success');
+}
+
+function loadAffiliateLinks() {
+  const data = JSON.parse(localStorage.getItem('elk_affiliates') || '{}');
+  // Populate admin fields if on admin page
+  const shopifyField   = document.getElementById('affShopify');
+  const wordpressField = document.getElementById('affWordpress');
+  const extra1Name     = document.getElementById('affExtra1Name');
+  const extra1Url      = document.getElementById('affExtra1Url');
+  if (shopifyField && data.shopify)     shopifyField.value   = data.shopify;
+  if (wordpressField && data.wordpress) wordpressField.value = data.wordpress;
+  if (extra1Name && data.extra1name)    { extra1Name.value   = data.extra1name; document.getElementById('affExtra1Fields').style.display = 'block'; }
+  if (extra1Url && data.extra1url)      extra1Url.value      = data.extra1url;
+  applyAffiliateLinks(data);
+}
+
+function applyAffiliateLinks(data) {
+  // Apply to homepage affiliate section
+  const shopifyBtn   = document.getElementById('shopifyAffLink');
+  const wordpressBtn = document.getElementById('wordpressAffLink');
+  if (shopifyBtn) {
+    if (data.shopify) {
+      shopifyBtn.href = data.shopify;
+      shopifyBtn.onclick = null;
+    } else {
+      shopifyBtn.href = '#';
+      shopifyBtn.onclick = (e) => { e.preventDefault(); toast('Shopify affiliate link not set yet — add it in admin settings', ''); };
+    }
+  }
+  if (wordpressBtn) {
+    if (data.wordpress) {
+      wordpressBtn.href = data.wordpress;
+      wordpressBtn.onclick = null;
+    } else {
+      wordpressBtn.href = '#';
+      wordpressBtn.onclick = (e) => { e.preventDefault(); toast('WordPress affiliate link not set yet — add it in admin settings', ''); };
+    }
+  }
+}
+
 // INIT
 document.addEventListener('DOMContentLoaded', async () => {
   updateUsageBar();
   updateVideoUsageBar();
   updateBgUsageBar();
+  loadAffiliateLinks();
   await checkExistingSession();
   if (isAdmin && sessionStorage.getItem('elk_admin')) {
     const page = sessionStorage.getItem('elk_page');
